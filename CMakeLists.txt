@@ -12,7 +12,11 @@ endif()
 project ("vulkan-hpp-sdl" LANGUAGES CXX)
 
 # Add source to this project's executable.
+if (WIN32)
+add_executable (${PROJECT_NAME} WIN32 "main.cpp" )
+else()
 add_executable (${PROJECT_NAME} "main.cpp" )
+endif()
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
