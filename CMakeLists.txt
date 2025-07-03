@@ -28,4 +28,4 @@ option(SDL_STATIC "Build SDL as a static library" ON)
 
 add_subdirectory(SDL EXCLUDE_FROM_ALL)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static SDL3::Headers)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
