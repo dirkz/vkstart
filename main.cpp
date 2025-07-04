@@ -3,14 +3,17 @@
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL_main.h>
 
-static SDL_Window *window = NULL;
+using namespace vkstart;
+
+static SDL_Window *s_window = nullptr;
+static Engine *s_engine = nullptr;
 
 static void HandleSDLError(bool errorCheck, const char *functionName)
 {
     if (errorCheck)
     {
-		constexpr size_t ErrorMessageSize = 256;
-		char errorMsg[ErrorMessageSize];
+        constexpr size_t ErrorMessageSize = 256;
+        char errorMsg[ErrorMessageSize];
 
         const char *sdlErrorMessage = SDL_GetError();
         if (sdlErrorMessage && sdlErrorMessage[0])
@@ -23,8 +26,8 @@ static void HandleSDLError(bool errorCheck, const char *functionName)
             SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s", functionName);
         }
 
-		SDL_Log(errorMsg);
-		throw std::runtime_error{errorMsg};
+        SDL_Log(errorMsg);
+        throw std::runtime_error{errorMsg};
     }
 }
 
@@ -33,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
 
-    window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
+    s_window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
 
     Uint32 numInstanceExtensions = 0;
     const char *const *const instanceExtensions =
@@ -46,9 +49,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
         reinterpret_cast<PFN_vkGetInstanceProcAddr>(sdlProcAddr);
 
-    assert(vkGetInstanceProcAddr != nullptr, "expecting non-null vkGetInstanceProcAddr");
+    assert(vkGetInstanceProcAddr != nullptr);
 
-    vk::raii::Context context{vkGetInstanceProcAddr};
+    s_engine = new Engine{vkGetInstanceProcAddr};
 
     return SDL_APP_CONTINUE;
 }
@@ -69,5 +72,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    /* SDL will clean up the window/renderer for us. */
+    if (s_window)
+    {
+        SDL_DestroyWindow(s_window);
+    }
+
+    if (s_engine)
+    {
+        free(s_engine);
+    }
 }
