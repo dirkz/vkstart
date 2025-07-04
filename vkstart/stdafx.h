@@ -11,5 +11,6 @@
 #include <exception>
 #include <vector>
 #include <span>
+#include <memory>
 
 #include <SDL.hpp>

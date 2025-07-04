@@ -78,13 +78,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    if (s_window)
-    {
-        SDL_DestroyWindow(s_window);
-    }
-
     if (s_engine)
     {
         free(s_engine);
+    }
+
+    if (s_window)
+    {
+        SDL_DestroyWindow(s_window);
     }
 }
