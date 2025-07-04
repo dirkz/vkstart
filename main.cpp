@@ -38,10 +38,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     s_window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
 
-    Uint32 numInstanceExtensions = 0;
-    const char *const *const instanceExtensions =
-        SDL_Vulkan_GetInstanceExtensions(&numInstanceExtensions);
-    HandleSDLError(instanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
+    Uint32 numSdlInstanceExtensions = 0;
+    const char *const *const sdlInstanceExtensions =
+        SDL_Vulkan_GetInstanceExtensions(&numSdlInstanceExtensions);
+    HandleSDLError(sdlInstanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
+
+    std::vector<const char *> instanceExtensions(numSdlInstanceExtensions);
+    for (Uint32 i = 0; i < numSdlInstanceExtensions; ++i)
+    {
+        instanceExtensions[i] = sdlInstanceExtensions[i];
+    }
 
     SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
     HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");
@@ -51,7 +57,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     assert(vkGetInstanceProcAddr != nullptr);
 
-    s_engine = new Engine{vkGetInstanceProcAddr};
+    s_engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}};
 
     return SDL_APP_CONTINUE;
 }

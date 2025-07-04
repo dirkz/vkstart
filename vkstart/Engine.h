@@ -7,7 +7,8 @@ namespace vkstart
 
 struct Engine
 {
-    Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr);
+    Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
+           std::span<const char *> instanceExtensions);
 
   private:
     vk::raii::Context m_context;

@@ -9,5 +9,7 @@
 
 #include <cassert>
 #include <exception>
+#include <vector>
+#include <span>
 
 #include <SDL.hpp>
