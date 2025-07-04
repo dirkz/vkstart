@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <exception>
+
 #include <SDL.hpp>
 
 static SDL_Window *window = NULL;
@@ -13,11 +15,15 @@ static void HandleSDLError(bool check, const char *functionName)
 {
     if (check)
     {
-        const char *errorMsg = SDL_GetError();
-        if (errorMsg && errorMsg[0])
+        const char *sdlErrorMessage = SDL_GetError();
+        if (sdlErrorMessage && sdlErrorMessage[0])
         {
-
-            SDL_Log("Error with SDL_Vulkan_GetInstanceExtensions: %s", errorMsg);
+            constexpr size_t ErrorMessageSize = 512;
+            char errorMsg[ErrorMessageSize];
+            SDL_snprintf(errorMsg, ErrorMessageSize,
+                         "Error with SDL_Vulkan_GetInstanceExtensions: %s", sdlErrorMessage);
+            SDL_Log(errorMsg);
+            throw std::runtime_error{errorMsg};
         }
     }
 }
