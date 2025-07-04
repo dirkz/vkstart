@@ -12,20 +12,26 @@
 
 static SDL_Window *window = NULL;
 
-static void HandleSDLError(bool check, const char *functionName)
+static void HandleSDLError(bool errorCheck, const char *functionName)
 {
-    if (check)
+    if (errorCheck)
     {
+		constexpr size_t ErrorMessageSize = 256;
+		char errorMsg[ErrorMessageSize];
+
         const char *sdlErrorMessage = SDL_GetError();
         if (sdlErrorMessage && sdlErrorMessage[0])
         {
-            constexpr size_t ErrorMessageSize = 512;
-            char errorMsg[ErrorMessageSize];
-            SDL_snprintf(errorMsg, ErrorMessageSize,
-                         "Error with SDL_Vulkan_GetInstanceExtensions: %s", sdlErrorMessage);
-            SDL_Log(errorMsg);
-            throw std::runtime_error{errorMsg};
+            SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s: %s", functionName,
+                         sdlErrorMessage);
         }
+        else
+        {
+            SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s", functionName);
+        }
+
+		SDL_Log(errorMsg);
+		throw std::runtime_error{errorMsg};
     }
 }
 
