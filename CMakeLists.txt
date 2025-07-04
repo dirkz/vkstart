@@ -9,7 +9,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("vkstart" LANGUAGES CXX)
+project ("vkstart-main" LANGUAGES CXX)
 
 # Add source to this project's executable.
 if (WIN32)
@@ -29,5 +29,6 @@ find_package(Vulkan)
 option(SDL_STATIC "Build SDL as a static library" ON)
 
 add_subdirectory(SDL-Hpp)
+add_subdirectory(vkstart)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL-Hpp Vulkan::Vulkan)
