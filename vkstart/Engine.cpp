@@ -51,6 +51,7 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
     };
 
     auto extensions = RequiredExtensions(instanceExtensions);
+    vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = DebugMessengerCreateInfo();
 
     vk::InstanceCreateInfo createInfo{
         .pApplicationInfo = &appInfo,
@@ -60,6 +61,8 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
         .ppEnabledExtensionNames = extensions.data(),
     };
 
+    vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT> createInfos{
+        createInfo, debugMessengerCreateInfo};
     m_instance = std::make_unique<vk::raii::Instance>(m_context, createInfo);
 }
 
