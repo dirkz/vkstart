@@ -26,10 +26,6 @@ endif()
 
 option(SDL_STATIC "Build SDL as a static library" ON)
 
-add_subdirectory(SDL EXCLUDE_FROM_ALL)
+add_subdirectory(SDL-Hpp)
 
-if (SDL_STATIC)
-	target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
-else()
-	target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL-Hpp)
