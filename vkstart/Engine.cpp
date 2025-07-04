@@ -41,6 +41,8 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
 
     vk::InstanceCreateInfo createInfo{
         .pApplicationInfo = &appInfo,
+        .enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size()),
+        .ppEnabledLayerNames = ValidationLayers.data(),
         .enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size()),
         .ppEnabledExtensionNames = instanceExtensions.data(),
     };
