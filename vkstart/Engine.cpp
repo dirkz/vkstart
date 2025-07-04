@@ -21,11 +21,16 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
     }
 
     CreateInstance(instanceExtensions);
-    bool supported = CheckValidationLayerSupport();
 }
 
 void Engine::CreateInstance(std::span<const char *> instanceExtensions)
 {
+    bool validationLayersSupported = CheckValidationLayerSupport();
+    if (!validationLayersSupported)
+    {
+        throw std::runtime_error{"required validation layers not available"};
+    }
+
     constexpr vk::ApplicationInfo appInfo{
         .pApplicationName = "Hello Triangles",
         .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
