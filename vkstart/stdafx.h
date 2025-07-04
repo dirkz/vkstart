@@ -12,5 +12,6 @@
 #include <vector>
 #include <span>
 #include <memory>
+#include <string>
 
 #include <SDL.hpp>

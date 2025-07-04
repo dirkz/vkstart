@@ -12,15 +12,15 @@ constexpr bool EnableValidationLayers = true;
 #endif
 
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-               std::span<const char *> instanceExtensions)
+               std::span<const char *> requiredInstanceExtensions)
     : m_context{vkGetInstanceProcAddr}
 {
-    for (auto extension : instanceExtensions)
+    for (auto extension : requiredInstanceExtensions)
     {
         SDL_Log("requested instance extension: %s", extension);
     }
 
-    CreateInstance(instanceExtensions);
+    CreateInstance(requiredInstanceExtensions);
 }
 
 void Engine::CreateInstance(std::span<const char *> instanceExtensions)
@@ -39,12 +39,14 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
         .apiVersion = vk::ApiVersion14,
     };
 
+    auto extensions = RequiredExtensions(instanceExtensions);
+
     vk::InstanceCreateInfo createInfo{
         .pApplicationInfo = &appInfo,
         .enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size()),
         .ppEnabledLayerNames = ValidationLayers.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size()),
-        .ppEnabledExtensionNames = instanceExtensions.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+        .ppEnabledExtensionNames = extensions.data(),
     };
 
     m_instance = std::make_unique<vk::raii::Instance>(m_context, createInfo);
@@ -67,6 +69,35 @@ bool Engine::CheckValidationLayerSupport()
     });
 
     return all;
+}
+
+std::vector<const char *> Engine::RequiredExtensions(
+    std::span<const char *> requiredInstanceExtensions)
+{
+    std::vector<const char *> extensions{requiredInstanceExtensions.begin(),
+                                         requiredInstanceExtensions.end()};
+
+    if (EnableValidationLayers)
+    {
+        extensions.push_back(vk::EXTDebugUtilsExtensionName);
+    }
+
+    auto extensionProperties = m_context.enumerateInstanceExtensionProperties();
+
+    for (auto extensionName : extensions)
+    {
+        bool supported = std::ranges::any_of(
+            extensionProperties, [&extensionName](vk::ExtensionProperties const &ep) {
+                return strcmp(ep.extensionName, extensionName) == 0;
+            });
+        if (!supported)
+        {
+            std::string msg{"extension "};
+            throw std::runtime_error{msg + extensionName + " is requested, but not supported"};
+        }
+    }
+
+    return extensions;
 }
 
 } // namespace vkstart
