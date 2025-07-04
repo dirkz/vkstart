@@ -9,6 +9,19 @@
 
 static SDL_Window *window = NULL;
 
+static void HandleSDLError(bool check, const char *functionName)
+{
+    if (check)
+    {
+        const char *errorMsg = SDL_GetError();
+        if (errorMsg && errorMsg[0])
+        {
+
+            SDL_Log("Error with SDL_Vulkan_GetInstanceExtensions: %s", errorMsg);
+        }
+    }
+}
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
@@ -20,15 +33,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     const char *const *const instanceExtensions =
         SDL_Vulkan_GetInstanceExtensions(&numInstanceExtensions);
 
-    if (!instanceExtensions)
-    {
-        const char *errorMsg = SDL_GetError();
-        if (errorMsg && errorMsg[0])
-        {
-
-            SDL_Log("Error with SDL_Vulkan_GetInstanceExtensions: %s", errorMsg);
-        }
-    }
+    HandleSDLError(instanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
 
     return SDL_APP_CONTINUE;
 }
