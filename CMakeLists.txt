@@ -31,4 +31,4 @@ option(SDL_STATIC "Build SDL as a static library" ON)
 add_subdirectory(SDL-Hpp)
 add_subdirectory(vkstart)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL-Hpp Vulkan::Vulkan)
+target_link_libraries(${PROJECT_NAME} PRIVATE vkstart SDL-Hpp Vulkan::Vulkan)

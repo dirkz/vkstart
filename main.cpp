@@ -10,6 +10,8 @@
 
 #include <SDL.hpp>
 
+#include "Engine.h"
+
 static SDL_Window *window = NULL;
 
 static void HandleSDLError(bool errorCheck, const char *functionName)
