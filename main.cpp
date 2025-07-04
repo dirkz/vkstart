@@ -38,8 +38,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Uint32 numInstanceExtensions = 0;
     const char *const *const instanceExtensions =
         SDL_Vulkan_GetInstanceExtensions(&numInstanceExtensions);
-
     HandleSDLError(instanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
+
+    SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
+    HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");
 
     return SDL_APP_CONTINUE;
 }
