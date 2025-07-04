@@ -31,4 +31,6 @@ option(SDL_STATIC "Build SDL as a static library" ON)
 add_subdirectory(SDL-Hpp)
 add_subdirectory(vkstart)
 
+target_precompile_headers(${PROJECT_NAME} REUSE_FROM vkstart)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE vkstart SDL-Hpp Vulkan::Vulkan)
