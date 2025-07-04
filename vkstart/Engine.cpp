@@ -3,6 +3,14 @@
 namespace vkstart
 {
 
+const std::vector ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+#ifdef NDEBUG
+constexpr bool EnableValidationLayers = false;
+#else
+constexpr bool EnableValidationLayers = true;
+#endif
+
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> instanceExtensions)
     : m_context{vkGetInstanceProcAddr}
@@ -13,6 +21,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
     }
 
     CreateInstance(instanceExtensions);
+    bool supported = CheckValidationLayerSupport();
 }
 
 void Engine::CreateInstance(std::span<const char *> instanceExtensions)
@@ -32,6 +41,25 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
     };
 
     m_instance = std::make_unique<vk::raii::Instance>(m_context, createInfo);
+}
+
+bool Engine::CheckValidationLayerSupport()
+{
+    if (!EnableValidationLayers)
+    {
+        return true;
+    }
+
+    auto instanceLayers = m_context.enumerateInstanceLayerProperties();
+
+    // require that ALL our validation layers (all_of) are found in the instance layers (any_of)
+    bool all = std::ranges::all_of(ValidationLayers, [&instanceLayers](const char *pLayerName) {
+        return std::ranges::any_of(instanceLayers, [&pLayerName](vk::LayerProperties const &lp) {
+            return strcmp(pLayerName, lp.layerName) == 0;
+        });
+    });
+
+    return all;
 }
 
 } // namespace vkstart

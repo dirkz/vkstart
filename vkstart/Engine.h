@@ -11,6 +11,7 @@ struct Engine
            std::span<const char *> instanceExtensions);
 
     void CreateInstance(std::span<const char *> instanceExtensions);
+    bool CheckValidationLayerSupport();
 
   private:
     vk::raii::Context m_context;
