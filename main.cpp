@@ -3,7 +3,9 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_vulkan.h>
 
-#include <vulkan/vulkan.h>
+#define VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL 0
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#include <vulkan/vulkan_raii.hpp>
 
 #include <cassert>
 #include <exception>
@@ -56,6 +58,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         reinterpret_cast<PFN_vkGetInstanceProcAddr>(sdlProcAddr);
 
     assert(vkGetInstanceProcAddr != nullptr, "expecting non-null vkGetInstanceProcAddr");
+
+    vk::raii::Context context{vkGetInstanceProcAddr};
 
     return SDL_APP_CONTINUE;
 }
