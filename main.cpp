@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <cassert>
 #include <exception>
 
 #include <SDL.hpp>
@@ -42,6 +43,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
     HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");
+
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
+        reinterpret_cast<PFN_vkGetInstanceProcAddr>(sdlProcAddr);
+
+    assert(vkGetInstanceProcAddr != nullptr, "expecting non-null vkGetInstanceProcAddr");
 
     return SDL_APP_CONTINUE;
 }
