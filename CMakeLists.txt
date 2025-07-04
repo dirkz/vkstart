@@ -24,8 +24,10 @@ endif()
 
 # TODO: Add tests and install targets if needed.
 
+find_package(Vulkan)
+
 option(SDL_STATIC "Build SDL as a static library" ON)
 
 add_subdirectory(SDL-Hpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL-Hpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL-Hpp Vulkan::Vulkan)
