@@ -1,6 +1,9 @@
 ﻿#define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_vulkan.h>
+
+#include <vulkan/vulkan.h>
 
 #include <SDL.hpp>
 
@@ -10,7 +13,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
+
     window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
+
+    Uint32 numInstanceExtensions = 0;
+    const char *const *const instanceExtensions =
+        SDL_Vulkan_GetInstanceExtensions(&numInstanceExtensions);
+
+    if (!instanceExtensions)
+    {
+        const char *errorMsg = SDL_GetError();
+        if (errorMsg && errorMsg[0])
+        {
+
+            SDL_Log("Error with SDL_Vulkan_GetInstanceExtensions: %s", errorMsg);
+        }
+    }
 
     return SDL_APP_CONTINUE;
 }
