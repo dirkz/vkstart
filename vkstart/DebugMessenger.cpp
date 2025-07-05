@@ -7,9 +7,10 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(
     vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type,
     const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData, void *)
 {
-    std::string msg{"type "};
-    msg += to_string(type) + " msg: " + pCallbackData->pMessage;
-    SDL_Log("VALIDATION LAYER: %s", msg.c_str());
+    if (severity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
+    {
+        SDL_Log("%s %s", to_string(type).c_str(), pCallbackData->pMessage);
+    }
 
     return vk::False;
 }
