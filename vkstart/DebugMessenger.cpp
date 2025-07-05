@@ -10,6 +10,7 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(
     if (severity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
     {
         SDL_Log("%s %s", to_string(type).c_str(), pCallbackData->pMessage);
+        return vk::True;
     }
 
     return vk::False;
