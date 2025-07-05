@@ -9,9 +9,6 @@ namespace vkstart
 
 struct Engine
 {
-    static vk::raii::Instance CreateInstance(vk::raii::Context &context,
-                                             std::span<const char *> instanceExtensions);
-
     Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
            std::span<const char *> requiredInstanceExtensions);
 

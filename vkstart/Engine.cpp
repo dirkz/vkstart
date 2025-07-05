@@ -5,8 +5,8 @@
 namespace vkstart
 {
 
-vk::raii::Instance Engine::CreateInstance(vk::raii::Context &context,
-                                          std::span<const char *> windowInstanceExtensions)
+static vk::raii::Instance CreateInstance(vk::raii::Context &context,
+                                         std::span<const char *> windowInstanceExtensions)
 {
     bool validationLayersSupported = ValidationLayers::CheckSupport(context);
     if (!validationLayersSupported)
