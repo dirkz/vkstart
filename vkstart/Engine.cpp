@@ -54,12 +54,12 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
             continue;
         }
 
+        vk::QueueFlags queueFlagsZero{};
         auto queueFamilyProperties = device.getQueueFamilyProperties();
-        bool supportsGraphics =
-            std::ranges::any_of(queueFamilyProperties, [](const vk::QueueFamilyProperties &qfp) {
+        bool supportsGraphics = std::ranges::any_of(
+            queueFamilyProperties, [&queueFlagsZero](const vk::QueueFamilyProperties &qfp) {
                 vk::QueueFlags flags = qfp.queueFlags & vk::QueueFlagBits::eGraphics;
-                vk::QueueFlags zero{};
-                return flags != zero;
+                return flags != queueFlagsZero;
             });
         if (!supportsGraphics)
         {
