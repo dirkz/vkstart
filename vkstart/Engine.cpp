@@ -14,7 +14,12 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
         throw std::runtime_error{"required validation layers not available"};
     }
 
-    constexpr vk::ApplicationInfo appInfo{
+    const char *applicationName = "Hello Triangles";
+    const uint32_t applicationVersion = VK_MAKE_VERSION(0, 0, 1);
+    const char *engineName = "vkstart";
+    const uint32_t engineVersion = VK_MAKE_VERSION(0, 0, 1);
+    const uint32_t apiVersion = vk::ApiVersion14;
+    constexpr vk::ApplicationInfo applicationInfo{
         .pApplicationName = "Hello Triangles",
         .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
         .pEngineName = "vkstart",
@@ -25,26 +30,32 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
 
-    void *pNext = nullptr;
-
-    if (ValidationLayers::Enabled())
-    {
-        pNext = &debugMessengerCreateInfo;
-    }
-
-    auto extensions = ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
-    auto validationLayers = ValidationLayers::Required();
+    const auto enabledExtensionNames =
+        ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
+    const auto enabledLayerNames = ValidationLayers::Required();
 
     vk::InstanceCreateInfo createInfo{
-        .pNext = pNext,
-        .pApplicationInfo = &appInfo,
-        .enabledLayerCount = static_cast<uint32_t>(validationLayers.size()),
-        .ppEnabledLayerNames = validationLayers.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
-        .ppEnabledExtensionNames = extensions.data(),
+        .pApplicationInfo = &applicationInfo,
+        .enabledLayerCount = static_cast<uint32_t>(enabledLayerNames.size()),
+        .ppEnabledLayerNames = enabledLayerNames.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(enabledExtensionNames.size()),
+        .ppEnabledExtensionNames = enabledExtensionNames.data(),
     };
 
-    return vk::raii::Instance{context, createInfo};
+    vk::InstanceCreateInfo instanceCreateInfo;
+    if (ValidationLayers::Enabled())
+    {
+
+        const vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT>
+            createInfos = {createInfo, debugMessengerCreateInfo};
+        instanceCreateInfo = createInfos.get<vk::InstanceCreateInfo>();
+    }
+    else
+    {
+        instanceCreateInfo = createInfo;
+    }
+
+    return vk::raii::Instance{context, instanceCreateInfo};
 }
 
 static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
