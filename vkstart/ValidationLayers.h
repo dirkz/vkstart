@@ -7,9 +7,9 @@ namespace vkstart
 
 struct ValidationLayers
 {
-    static bool EnableValidationLayers();
-    static std::vector<const char *> RequiredValidationLayers();
-    static bool CheckValidationLayerSupport(vk::raii::Context &context);
+    static bool Enabled();
+    static std::vector<const char *> Required();
+    static bool CheckSupport(vk::raii::Context &context);
     static std::vector<const char *> RequiredExtensions(
         vk::raii::Context &context, std::span<const char *> requiredInstanceExtensions);
 };

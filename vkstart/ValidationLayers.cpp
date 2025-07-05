@@ -11,17 +11,17 @@ constexpr bool ValidationLayersEnabled = false;
 constexpr bool ValidationLayersEnabled = true;
 #endif
 
-bool ValidationLayers::EnableValidationLayers()
+bool ValidationLayers::Enabled()
 {
     return ValidationLayersEnabled;
 }
 
-std::vector<const char *> ValidationLayers::RequiredValidationLayers()
+std::vector<const char *> ValidationLayers::Required()
 {
     return ValidationLayersList;
 }
 
-bool ValidationLayers::CheckValidationLayerSupport(vk::raii::Context &context)
+bool ValidationLayers::CheckSupport(vk::raii::Context &context)
 {
     if (!ValidationLayersEnabled)
     {

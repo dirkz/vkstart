@@ -19,7 +19,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
 
 void Engine::CreateInstance(std::span<const char *> instanceExtensions)
 {
-    bool validationLayersSupported = ValidationLayers::CheckValidationLayerSupport(m_context);
+    bool validationLayersSupported = ValidationLayers::CheckSupport(m_context);
     if (!validationLayersSupported)
     {
         throw std::runtime_error{"required validation layers not available"};
@@ -37,7 +37,7 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
         DebugMessenger::DebugMessengerCreateInfo();
 
     auto extensions = ValidationLayers::RequiredExtensions(m_context, instanceExtensions);
-    auto validationLayers = ValidationLayers::RequiredValidationLayers();
+    auto validationLayers = ValidationLayers::Required();
 
     vk::InstanceCreateInfo createInfo{
         .pNext = &debugMessengerCreateInfo,
@@ -53,7 +53,7 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
 
 void Engine::SetupDebugMessenger()
 {
-    if (!ValidationLayers::EnableValidationLayers())
+    if (!ValidationLayers::Enabled())
     {
         return;
     }
