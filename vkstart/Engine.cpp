@@ -6,18 +6,18 @@ namespace vkstart
 {
 
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-               std::span<const char *> requiredInstanceExtensions)
+               std::span<const char *> windowInstanceExtensions)
     : m_context{vkGetInstanceProcAddr}
 {
-    for (auto extension : requiredInstanceExtensions)
+    for (auto extension : windowInstanceExtensions)
     {
         SDL_Log("requested instance extension: %s", extension);
     }
 
-    CreateInstance(requiredInstanceExtensions);
+    CreateInstance(windowInstanceExtensions);
 }
 
-void Engine::CreateInstance(std::span<const char *> instanceExtensions)
+void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
 {
     bool validationLayersSupported = ValidationLayers::CheckSupport(m_context);
     if (!validationLayersSupported)
@@ -36,7 +36,7 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
 
-    auto extensions = ValidationLayers::RequiredExtensions(m_context, instanceExtensions);
+    auto extensions = ValidationLayers::RequiredExtensions(m_context, windowInstanceExtensions);
     auto validationLayers = ValidationLayers::Required();
 
     vk::InstanceCreateInfo createInfo{
