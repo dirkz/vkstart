@@ -90,11 +90,6 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
       m_instance{CreateInstance(m_context, windowInstanceExtensions)},
       m_physicalDevice{PickPhysicalDevice(m_instance)}
 {
-    for (auto extension : windowInstanceExtensions)
-    {
-        SDL_Log("requested instance extension: %s", extension);
-    }
-
     SetupDebugMessenger();
 }
 
