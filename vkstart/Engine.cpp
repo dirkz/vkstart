@@ -19,28 +19,17 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
     const char *engineName = "vkstart";
     const uint32_t engineVersion = VK_MAKE_VERSION(0, 0, 1);
     const uint32_t apiVersion = vk::ApiVersion14;
-    constexpr vk::ApplicationInfo applicationInfo{
-        .pApplicationName = "Hello Triangles",
-        .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
-        .pEngineName = "vkstart",
-        .engineVersion = VK_MAKE_VERSION(0, 0, 1),
-        .apiVersion = vk::ApiVersion14,
-    };
+    const vk::ApplicationInfo applicationInfo{applicationName, applicationVersion, engineName,
+                                              apiVersion};
 
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
 
-    const auto enabledExtensionNames =
+    const std::vector<const char *> enabledExtensionNames =
         ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
-    const auto enabledLayerNames = ValidationLayers::Required();
-
+    const std::vector<const char *> enabledLayerNames = ValidationLayers::Required();
     vk::InstanceCreateInfo createInfo{
-        .pApplicationInfo = &applicationInfo,
-        .enabledLayerCount = static_cast<uint32_t>(enabledLayerNames.size()),
-        .ppEnabledLayerNames = enabledLayerNames.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(enabledExtensionNames.size()),
-        .ppEnabledExtensionNames = enabledExtensionNames.data(),
-    };
+        {}, &applicationInfo, enabledLayerNames, enabledExtensionNames};
 
     vk::InstanceCreateInfo instanceCreateInfo;
     if (ValidationLayers::Enabled())

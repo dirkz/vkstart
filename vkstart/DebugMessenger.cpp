@@ -25,20 +25,18 @@ DebugMessenger::DebugMessenger(vk::raii::Instance &instance)
 
 vk::DebugUtilsMessengerCreateInfoEXT DebugMessenger::DebugMessengerCreateInfo()
 {
-    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+    const vk::DebugUtilsMessageSeverityFlagsEXT messageSeverity(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
-    vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+
+    const vk::DebugUtilsMessageTypeFlagsEXT messageType(
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
         vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
         vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
 
     vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT{
-        .flags = {},
-        .messageSeverity = severityFlags,
-        .messageType = messageTypeFlags,
-        .pfnUserCallback = &DebugCallback};
+        {}, messageSeverity, messageType, &DebugCallback};
 
     return debugUtilsMessengerCreateInfoEXT;
 }
