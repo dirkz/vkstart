@@ -17,6 +17,8 @@ struct Engine
   private:
     vk::raii::Context m_context;
     vk::raii::Instance m_instance;
+    vk::raii::PhysicalDevice m_physicalDevice;
+
     std::unique_ptr<DebugMessenger> m_debugMessenger;
 };
 

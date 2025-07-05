@@ -9,9 +9,10 @@
 
 #include <cassert>
 #include <exception>
-#include <vector>
-#include <span>
 #include <memory>
+#include <span>
 #include <string>
+#include <unordered_set>
+#include <vector>
 
 #include <SDL.hpp>
