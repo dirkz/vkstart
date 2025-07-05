@@ -5,21 +5,10 @@
 namespace vkstart
 {
 
-Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-               std::span<const char *> windowInstanceExtensions)
-    : m_context{vkGetInstanceProcAddr}
+vk::raii::Instance Engine::CreateInstance(vk::raii::Context &context,
+                                          std::span<const char *> windowInstanceExtensions)
 {
-    for (auto extension : windowInstanceExtensions)
-    {
-        SDL_Log("requested instance extension: %s", extension);
-    }
-
-    CreateInstance(windowInstanceExtensions);
-}
-
-void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
-{
-    bool validationLayersSupported = ValidationLayers::CheckSupport(m_context);
+    bool validationLayersSupported = ValidationLayers::CheckSupport(context);
     if (!validationLayersSupported)
     {
         throw std::runtime_error{"required validation layers not available"};
@@ -36,7 +25,7 @@ void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
 
-    auto extensions = ValidationLayers::RequiredExtensions(m_context, windowInstanceExtensions);
+    auto extensions = ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
     auto validationLayers = ValidationLayers::Required();
 
     vk::InstanceCreateInfo createInfo{
@@ -48,7 +37,20 @@ void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
         .ppEnabledExtensionNames = extensions.data(),
     };
 
-    m_instance = std::make_unique<vk::raii::Instance>(m_context, createInfo);
+    return vk::raii::Instance{context, createInfo};
+}
+
+Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
+               std::span<const char *> windowInstanceExtensions)
+    : m_context{vkGetInstanceProcAddr},
+      m_instance{CreateInstance(m_context, windowInstanceExtensions)}
+{
+    for (auto extension : windowInstanceExtensions)
+    {
+        SDL_Log("requested instance extension: %s", extension);
+    }
+
+    SetupDebugMessenger();
 }
 
 void Engine::SetupDebugMessenger()
@@ -58,7 +60,7 @@ void Engine::SetupDebugMessenger()
         return;
     }
 
-    m_debugMessenger = std::make_unique<DebugMessenger>(*m_instance);
+    m_debugMessenger = std::make_unique<DebugMessenger>(m_instance);
 }
 
 } // namespace vkstart
