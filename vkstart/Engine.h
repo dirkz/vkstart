@@ -13,8 +13,6 @@ struct Engine
            std::span<const char *> requiredInstanceExtensions);
 
     void CreateInstance(std::span<const char *> instanceExtensions);
-    std::vector<const char *> RequiredExtensions(
-        std::span<const char *> requiredInstanceExtensions);
     void SetupDebugMessenger();
 
   private:
