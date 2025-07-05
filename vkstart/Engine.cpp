@@ -54,6 +54,7 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = DebugMessengerCreateInfo();
 
     vk::InstanceCreateInfo createInfo{
+        .pNext = &debugMessengerCreateInfo,
         .pApplicationInfo = &appInfo,
         .enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size()),
         .ppEnabledLayerNames = ValidationLayers.data(),
@@ -61,8 +62,6 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
         .ppEnabledExtensionNames = extensions.data(),
     };
 
-    vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT> createInfos{
-        createInfo, debugMessengerCreateInfo};
     m_instance = std::make_unique<vk::raii::Instance>(m_context, createInfo);
 }
 
