@@ -25,11 +25,18 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
 
+    void *pNext = nullptr;
+
+    if (ValidationLayers::Enabled())
+    {
+        pNext = &debugMessengerCreateInfo;
+    }
+
     auto extensions = ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
     auto validationLayers = ValidationLayers::Required();
 
     vk::InstanceCreateInfo createInfo{
-        .pNext = &debugMessengerCreateInfo,
+        .pNext = pNext,
         .pApplicationInfo = &appInfo,
         .enabledLayerCount = static_cast<uint32_t>(validationLayers.size()),
         .ppEnabledLayerNames = validationLayers.data(),
