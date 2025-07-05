@@ -5,8 +5,8 @@
 
 using namespace vkstart;
 
-static SDL_Window *s_window = nullptr;
-static Engine *s_engine = nullptr;
+static SDL_Window *window = nullptr;
+static Engine *engine = nullptr;
 
 static void HandleSDLError(bool errorCheck, const char *functionName)
 {
@@ -36,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
 
-    s_window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
+    window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
 
     Uint32 numSdlInstanceExtensions = 0;
     const char *const *const sdlInstanceExtensions =
@@ -57,7 +57,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     assert(vkGetInstanceProcAddr != nullptr);
 
-    s_engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}};
+    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}};
 
     return SDL_APP_CONTINUE;
 }
@@ -78,13 +78,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    if (s_engine)
+    if (engine)
     {
-        free(s_engine);
+        free(engine);
     }
 
-    if (s_window)
+    if (window)
     {
-        SDL_DestroyWindow(s_window);
+        SDL_DestroyWindow(window);
     }
 }
