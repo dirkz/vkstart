@@ -25,7 +25,7 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
     const std::vector<const char *> enabledExtensionNames =
         ValidationLayers::RequiredExtensions(context, windowInstanceExtensions);
     const std::vector<const char *> enabledLayerNames = ValidationLayers::Required();
-    vk::InstanceCreateInfo createInfo{
+    vk::InstanceCreateInfo basicInstanceCreateInfo{
         {}, &applicationInfo, enabledLayerNames, enabledExtensionNames};
 
     vk::InstanceCreateInfo instanceCreateInfo;
@@ -34,12 +34,12 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
         vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
             DebugMessenger::DebugMessengerCreateInfo();
         const vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT>
-            createInfos = {createInfo, debugMessengerCreateInfo};
+            createInfos = {basicInstanceCreateInfo, debugMessengerCreateInfo};
         instanceCreateInfo = createInfos.get<vk::InstanceCreateInfo>();
     }
     else
     {
-        instanceCreateInfo = createInfo;
+        instanceCreateInfo = basicInstanceCreateInfo;
     }
 
     return vk::raii::Instance{context, instanceCreateInfo};
