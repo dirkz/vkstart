@@ -2,7 +2,11 @@ add_library(vkstart
 	OBJECT
 	Engine.h
 	Engine.cpp
-	vkstart.h "DebugMessenger.h" "DebugMessenger.cpp")
+	vkstart.h
+	DebugMessenger.h
+	DebugMessenger.cpp
+	ValidationLayers.h
+	ValidationLayers.cpp)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET vkstart PROPERTY CXX_STANDARD 20)
