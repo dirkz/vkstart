@@ -26,7 +26,7 @@ static void HandleSDLError(bool errorCheck, const char *functionName)
             SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s", functionName);
         }
 
-        SDL_Log(errorMsg);
+        SDL_Log("%s",  errorMsg);
         throw std::runtime_error{errorMsg};
     }
 }
