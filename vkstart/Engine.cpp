@@ -89,6 +89,12 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
     throw std::runtime_error{"no suitable physical device found"};
 }
 
+static vk::raii::Device CreateDevice(vk::raii::PhysicalDevice &physicalDevice)
+{
+    std::vector<vk::QueueFamilyProperties> queueFamilyProperties =
+        physicalDevice.getQueueFamilyProperties();
+}
+
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> windowInstanceExtensions)
     : m_context{vkGetInstanceProcAddr},
