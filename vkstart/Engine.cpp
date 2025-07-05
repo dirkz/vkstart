@@ -20,7 +20,7 @@ static vk::raii::Instance CreateInstance(vk::raii::Context &context,
     const uint32_t engineVersion = VK_MAKE_VERSION(0, 0, 1);
     const uint32_t apiVersion = vk::ApiVersion14;
     const vk::ApplicationInfo applicationInfo{applicationName, applicationVersion, engineName,
-                                              apiVersion};
+                                              engineVersion, apiVersion};
 
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
         DebugMessenger::DebugMessengerCreateInfo();
