@@ -11,17 +11,6 @@ constexpr bool EnableValidationLayers = false;
 constexpr bool EnableValidationLayers = true;
 #endif
 
-static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(
-    vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type,
-    const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData, void *)
-{
-    std::string msg{"type "};
-    msg += to_string(type) + " msg: " + pCallbackData->pMessage;
-    SDL_Log("VALIDATION LAYER: %s", msg.c_str());
-
-    return vk::False;
-}
-
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> requiredInstanceExtensions)
     : m_context{vkGetInstanceProcAddr}
@@ -51,7 +40,8 @@ void Engine::CreateInstance(std::span<const char *> instanceExtensions)
     };
 
     auto extensions = RequiredExtensions(instanceExtensions);
-    vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = DebugMessengerCreateInfo();
+    vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo =
+        DebugMessenger::DebugMessengerCreateInfo();
 
     vk::InstanceCreateInfo createInfo{
         .pNext = &debugMessengerCreateInfo,
@@ -113,26 +103,6 @@ std::vector<const char *> Engine::RequiredExtensions(
     return extensions;
 }
 
-vk::DebugUtilsMessengerCreateInfoEXT Engine::DebugMessengerCreateInfo()
-{
-    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
-    vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
-        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-        vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-        vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
-
-    vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT{
-        .flags = {},
-        .messageSeverity = severityFlags,
-        .messageType = messageTypeFlags,
-        .pfnUserCallback = &DebugCallback};
-
-    return debugUtilsMessengerCreateInfoEXT;
-}
-
 void Engine::SetupDebugMessenger()
 {
     if (!EnableValidationLayers)
@@ -140,11 +110,7 @@ void Engine::SetupDebugMessenger()
         return;
     }
 
-    vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT =
-        DebugMessengerCreateInfo();
-
-    m_debugMessenger = std::make_unique<vk::raii::DebugUtilsMessengerEXT>(
-        *m_instance, debugUtilsMessengerCreateInfoEXT);
+    m_debugMessenger = std::make_unique<DebugMessenger>(*m_instance);
 }
 
 } // namespace vkstart

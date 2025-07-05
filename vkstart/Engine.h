@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 
+#include "DebugMessenger.h"
+
 namespace vkstart
 {
 
@@ -14,13 +16,12 @@ struct Engine
     bool CheckValidationLayerSupport();
     std::vector<const char *> RequiredExtensions(
         std::span<const char *> requiredInstanceExtensions);
-    vk::DebugUtilsMessengerCreateInfoEXT DebugMessengerCreateInfo();
     void SetupDebugMessenger();
 
   private:
     vk::raii::Context m_context;
     std::unique_ptr<vk::raii::Instance> m_instance;
-    std::unique_ptr<vk::raii::DebugUtilsMessengerEXT> m_debugMessenger;
+    std::unique_ptr<DebugMessenger> m_debugMessenger;
 };
 
 } // namespace vkstart
