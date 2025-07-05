@@ -44,10 +44,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     HandleSDLError(sdlInstanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
 
     std::vector<const char *> instanceExtensions(numSdlInstanceExtensions);
-    for (Uint32 i = 0; i < numSdlInstanceExtensions; ++i)
-    {
-        instanceExtensions[i] = sdlInstanceExtensions[i];
-    }
+    instanceExtensions.assign(sdlInstanceExtensions,
+                              sdlInstanceExtensions + numSdlInstanceExtensions);
 
     SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
     HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");
