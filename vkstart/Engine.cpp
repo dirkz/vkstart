@@ -225,7 +225,9 @@ void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
         presentMode,
         clipped,
     };
+
     m_swapchain = vk::raii::SwapchainKHR{m_device, swapChainCreateInfo};
+    m_swapchainImages = m_swapchain.getImages();
 }
 
 } // namespace vkstart

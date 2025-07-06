@@ -49,6 +49,7 @@ struct Engine
     vk::raii::SwapchainKHR m_swapchain = nullptr;
     vk::SurfaceFormatKHR m_swapchainImageFormat;
     vk::Extent2D m_swapchainExtent;
+    std::vector<vk::Image> m_swapchainImages;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
