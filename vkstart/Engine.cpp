@@ -1,6 +1,5 @@
 #include "Engine.h"
 
-#include "QueueFamilyIndices.h"
 #include "ValidationLayers.h"
 
 namespace vkstart
@@ -84,15 +83,10 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
     throw std::runtime_error{"no suitable physical device found"};
 }
 
-static vk::raii::Device CreateDevice(vk::raii::PhysicalDevice &physicalDevice)
+static vk::raii::Device CreateDevice(vk::raii::PhysicalDevice &physicalDevice,
+                                     QueueFamilyIndices &queueFamilyIndices)
 {
-    QueueFamilyIndices familyIndices = QueueFamilyIndices{physicalDevice};
-    if (!familyIndices.IsComplete())
-    {
-        throw std::runtime_error{"cannot create device: queue family indices incomplete"};
-    }
-
-    const uint32_t graphicsIndex = familyIndices.GraphicsIndex();
+    const uint32_t graphicsIndex = queueFamilyIndices.GraphicsIndex();
     const std::array<float, 1> priorities{0.0f};
     vk::DeviceQueueCreateInfo queueCreateInfo{{}, graphicsIndex, priorities};
 
@@ -125,7 +119,9 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> windowInstanceExtensions)
     : m_context{vkGetInstanceProcAddr},
       m_instance{CreateInstance(m_context, windowInstanceExtensions)},
-      m_physicalDevice{PickPhysicalDevice(m_instance)}, m_device{CreateDevice(m_physicalDevice)}
+      m_physicalDevice{PickPhysicalDevice(m_instance)},
+      m_queueFamilyIndices{QueueFamilyIndices{m_physicalDevice}},
+      m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)}
 {
     SetupDebugMessenger();
 }
