@@ -46,6 +46,8 @@ struct Engine
 
     vk::raii::Device m_device = nullptr;
     vk::raii::SwapchainKHR m_swapchain = nullptr;
+    vk::SurfaceFormatKHR m_swapchainImageFormat;
+    vk::Extent2D m_swapchainExtent;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
