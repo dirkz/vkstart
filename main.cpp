@@ -26,10 +26,23 @@ static void HandleSDLError(bool errorCheck, const char *functionName)
             SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s", functionName);
         }
 
-        SDL_Log("%s",  errorMsg);
+        SDL_Log("%s", errorMsg);
         throw std::runtime_error{errorMsg};
     }
 }
+
+struct SurfaceCreator
+{
+    vk::raii::SurfaceKHR operator()(const vk::raii::Instance &instance)
+    {
+        VkSurfaceKHR surface = nullptr;
+
+        bool success = SDL_Vulkan_CreateSurface(window, *instance, nullptr, &surface);
+        HandleSDLError(success, "SDL_Vulkan_CreateSurface");
+
+        return vk::raii::SurfaceKHR{instance, surface};
+    }
+};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
