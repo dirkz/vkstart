@@ -168,15 +168,63 @@ static vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilit
 
 void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
 {
-    auto surfaceCapabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
-    auto swapChainImageFormat =
+    vk::SurfaceCapabilitiesKHR surfaceCapabilities =
+        m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+
+    vk::SurfaceFormatKHR swapChainImageFormat =
         ChooseSwapSurfaceFormat(m_physicalDevice.getSurfaceFormatsKHR(m_surface));
-    auto swapChainExtent = ChooseSwapExtent(surfaceCapabilities, pixelWidth, pixelHeight);
-    auto minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
+
+    vk::Extent2D swapChainExtent = ChooseSwapExtent(surfaceCapabilities, pixelWidth, pixelHeight);
+
+    uint32_t minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
     minImageCount =
         (surfaceCapabilities.maxImageCount > 0 && minImageCount > surfaceCapabilities.maxImageCount)
             ? surfaceCapabilities.maxImageCount
             : minImageCount;
+
+    uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
+    if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
+    {
+        imageCount = surfaceCapabilities.maxImageCount;
+    }
+
+    bool separateQueues =
+        m_queueFamilyIndices.GraphicsIndex() != m_queueFamilyIndices.PresentIndex();
+
+    std::vector<uint32_t> queueFamilyIndices{};
+    if (separateQueues)
+    {
+        queueFamilyIndices = {m_queueFamilyIndices.GraphicsIndex(),
+                              m_queueFamilyIndices.PresentIndex()};
+    }
+
+    const uint32_t imageArrayLayers = 1;
+    const VkBool32 clipped = VK_TRUE;
+    const auto imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+    const auto imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+    const vk::PresentModeKHR presentMode =
+        ChooseSwapPresentMode(m_physicalDevice.getSurfacePresentModesKHR(m_surface));
+    const auto compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+    const auto imageSharingMode =
+        separateQueues ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
+    const vk::SurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
+    vk::SwapchainCreateInfoKHR swapChainCreateInfo{
+        {},
+        m_surface,
+        minImageCount,
+        swapChainImageFormat.format,
+        imageColorSpace,
+        swapChainExtent,
+        imageArrayLayers,
+        imageUsage,
+        imageSharingMode,
+        queueFamilyIndices,
+        preTransform,
+        compositeAlpha,
+        presentMode,
+        clipped,
+    };
+    m_swapchain = vk::raii::SwapchainKHR{m_device, swapChainCreateInfo};
 }
 
 } // namespace vkstart

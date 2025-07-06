@@ -36,11 +36,17 @@ struct Engine
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
+
     std::unique_ptr<DebugMessenger> m_debugMessenger = nullptr;
+
     vk::raii::SurfaceKHR m_surface = nullptr;
     vk::raii::PhysicalDevice m_physicalDevice = nullptr;
+
     QueueFamilyIndices m_queueFamilyIndices;
+
     vk::raii::Device m_device = nullptr;
+    vk::raii::SwapchainKHR m_swapchain = nullptr;
+
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
 };
