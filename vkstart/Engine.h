@@ -31,7 +31,7 @@ struct Engine
     vk::raii::Context m_context;
     vk::raii::Instance m_instance;
     std::unique_ptr<DebugMessenger> m_debugMessenger;
-    vk::raii::SurfaceKHR m_surface = nullptr;
+    vk::raii::SurfaceKHR m_surface;
     vk::raii::PhysicalDevice m_physicalDevice;
     QueueFamilyIndices m_queueFamilyIndices;
     vk::raii::Device m_device;
