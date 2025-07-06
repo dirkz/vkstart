@@ -8,6 +8,13 @@ namespace vkstart
 struct QueueFamilyIndices
 {
     QueueFamilyIndices(vk::raii::PhysicalDevice physicalDevice);
+
+    bool IsComplete() const;
+
+    std::optional<uint32_t> GraphicsIndex() const;
+
+  private:
+    std::optional<uint32_t> m_graphicsIndex;
 };
 
 } // namespace vkstart
