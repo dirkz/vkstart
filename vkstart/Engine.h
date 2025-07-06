@@ -21,7 +21,8 @@ struct Engine
           m_physicalDevice{PickPhysicalDevice(m_instance, m_surface)},
           m_queueFamilyIndices{m_physicalDevice, m_surface},
           m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)},
-          m_graphicsQueue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0}
+          m_graphicsQueue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0},
+          m_presentQueue{m_device, m_queueFamilyIndices.PresentIndex(), 0}
     {
         SetupDebugMessenger();
     }
@@ -37,6 +38,7 @@ struct Engine
     QueueFamilyIndices m_queueFamilyIndices;
     vk::raii::Device m_device;
     vk::raii::Queue m_graphicsQueue;
+    vk::raii::Queue m_presentQueue;
 };
 
 } // namespace vkstart
