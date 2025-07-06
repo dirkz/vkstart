@@ -92,7 +92,7 @@ static vk::raii::Device CreateDevice(vk::raii::PhysicalDevice &physicalDevice)
         throw std::runtime_error{"cannot create device: queue family indices incomplete"};
     }
 
-    const uint32_t graphicsIndex = familyIndices.GraphicsIndex().value();
+    const uint32_t graphicsIndex = familyIndices.GraphicsIndex();
     const std::array<float, 1> priorities{0.0f};
     vk::DeviceQueueCreateInfo queueCreateInfo{{}, graphicsIndex, priorities};
 
