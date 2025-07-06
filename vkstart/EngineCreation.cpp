@@ -46,7 +46,8 @@ vk::raii::Instance CreateInstance(vk::raii::Context &context,
     return vk::raii::Instance{context, instanceCreateInfo};
 }
 
-vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
+vk::raii::PhysicalDevice PickPhysicalDevice(const vk::raii::Instance &instance,
+                                            const vk::raii::SurfaceKHR &surface)
 {
     std::unordered_set<std::string> requiredDeviceExtensions{
         vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
@@ -60,7 +61,7 @@ vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
             continue;
         }
 
-        QueueFamilyIndices familiyIndices{physicalDevice};
+        QueueFamilyIndices familiyIndices{physicalDevice, surface};
         if (!familiyIndices.IsComplete())
         {
             continue;

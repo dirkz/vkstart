@@ -17,8 +17,9 @@ struct Engine
 
         : m_context{vkGetInstanceProcAddr},
           m_instance{CreateInstance(m_context, windowInstanceExtensions)},
-          m_surface{surfaceCreator(m_instance)}, m_physicalDevice{PickPhysicalDevice(m_instance)},
-          m_queueFamilyIndices{m_physicalDevice},
+          m_surface{surfaceCreator(m_instance)},
+          m_physicalDevice{PickPhysicalDevice(m_instance, m_surface)},
+          m_queueFamilyIndices{m_physicalDevice, m_surface},
           m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)},
           m_graphicsQueue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0}
     {
