@@ -68,7 +68,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     assert(vkGetInstanceProcAddr != nullptr);
 
-    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, SurfaceCreator{}};
+    int pixelWidth, pixelHeight;
+    sdl::GetWindowSize(window, &pixelWidth, &pixelHeight);
+
+    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, SurfaceCreator{},
+                        pixelWidth, pixelHeight};
 
     return SDL_APP_CONTINUE;
 }

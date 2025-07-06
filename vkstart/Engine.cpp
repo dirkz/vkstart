@@ -44,6 +44,16 @@ void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
     m_instance = vk::raii::Instance{m_context, instanceCreateInfo};
 }
 
+void Engine::SetupDebugMessenger()
+{
+    if (!ValidationLayers::Enabled())
+    {
+        return;
+    }
+
+    m_debugMessenger = std::make_unique<DebugMessenger>(m_instance);
+}
+
 void Engine::PickPhysicalDevice()
 {
     std::unordered_set<std::string> requiredDeviceExtensions{
@@ -114,14 +124,59 @@ void Engine::CreateDevice()
     m_device = vk::raii::Device{m_physicalDevice, deviceCreateInfoChained};
 }
 
-void Engine::SetupDebugMessenger()
+static vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(
+    const std::vector<vk::SurfaceFormatKHR> &availableFormats)
 {
-    if (!ValidationLayers::Enabled())
+    for (const auto &availableFormat : availableFormats)
     {
-        return;
+        if (availableFormat.format == vk::Format::eB8G8R8A8Srgb &&
+            availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        {
+            return availableFormat;
+        }
     }
 
-    m_debugMessenger = std::make_unique<DebugMessenger>(m_instance);
+    return availableFormats[0];
+}
+
+static vk::PresentModeKHR ChooseSwapPresentMode(
+    const std::vector<vk::PresentModeKHR> &availablePresentModes)
+{
+    for (const auto &availablePresentMode : availablePresentModes)
+    {
+        if (availablePresentMode == vk::PresentModeKHR::eMailbox)
+        {
+            return availablePresentMode;
+        }
+    }
+    return vk::PresentModeKHR::eFifo;
+}
+
+static vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities, int pixelWidth,
+                                     int pixelHeight)
+{
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    {
+        return capabilities.currentExtent;
+    }
+
+    return {std::clamp<uint32_t>(pixelWidth, capabilities.minImageExtent.width,
+                                 capabilities.maxImageExtent.width),
+            std::clamp<uint32_t>(pixelHeight, capabilities.minImageExtent.height,
+                                 capabilities.maxImageExtent.height)};
+}
+
+void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
+{
+    auto surfaceCapabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
+    auto swapChainImageFormat =
+        ChooseSwapSurfaceFormat(m_physicalDevice.getSurfaceFormatsKHR(m_surface));
+    auto swapChainExtent = ChooseSwapExtent(surfaceCapabilities, pixelWidth, pixelHeight);
+    auto minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
+    minImageCount =
+        (surfaceCapabilities.maxImageCount > 0 && minImageCount > surfaceCapabilities.maxImageCount)
+            ? surfaceCapabilities.maxImageCount
+            : minImageCount;
 }
 
 } // namespace vkstart

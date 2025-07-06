@@ -12,7 +12,8 @@ struct Engine
 {
     template <class T>
     Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-           std::span<const char *> windowInstanceExtensions, T surfaceCreator)
+           std::span<const char *> windowInstanceExtensions, T surfaceCreator, int pixelWidth,
+           int pixelHeight)
 
         : m_context{vkGetInstanceProcAddr}
     {
@@ -31,6 +32,7 @@ struct Engine
     void SetupDebugMessenger();
     void PickPhysicalDevice();
     void CreateDevice();
+    void CreateSwapChain(int pixelWidth, int pixelHeight);
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;

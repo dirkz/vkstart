@@ -6,9 +6,11 @@
 #define VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL 0
 #include <vulkan/vulkan_raii.hpp>
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <exception>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <span>
