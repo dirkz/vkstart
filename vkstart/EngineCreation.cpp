@@ -5,6 +5,7 @@
 
 namespace vkstart
 {
+
 vk::raii::Instance CreateInstance(vk::raii::Context &context,
                                   std::span<const char *> windowInstanceExtensions)
 {

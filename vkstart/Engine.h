@@ -17,7 +17,8 @@ struct Engine
 
         : m_context{vkGetInstanceProcAddr},
           m_instance{CreateInstance(m_context, windowInstanceExtensions)},
-          m_physicalDevice{PickPhysicalDevice(m_instance)}, m_queueFamilyIndices{m_physicalDevice},
+          m_surface{surfaceCreator(m_instance)}, m_physicalDevice{PickPhysicalDevice(m_instance)},
+          m_queueFamilyIndices{m_physicalDevice},
           m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)},
           m_graphicsQueue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0}
     {
@@ -29,12 +30,12 @@ struct Engine
   private:
     vk::raii::Context m_context;
     vk::raii::Instance m_instance;
+    std::unique_ptr<DebugMessenger> m_debugMessenger;
+    vk::raii::SurfaceKHR m_surface = nullptr;
     vk::raii::PhysicalDevice m_physicalDevice;
     QueueFamilyIndices m_queueFamilyIndices;
     vk::raii::Device m_device;
     vk::raii::Queue m_graphicsQueue;
-
-    std::unique_ptr<DebugMessenger> m_debugMessenger;
 };
 
 } // namespace vkstart

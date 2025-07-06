@@ -38,7 +38,7 @@ struct SurfaceCreator
         VkSurfaceKHR surface = nullptr;
 
         bool success = SDL_Vulkan_CreateSurface(window, *instance, nullptr, &surface);
-        HandleSDLError(success, "SDL_Vulkan_CreateSurface");
+        HandleSDLError(!success, "SDL_Vulkan_CreateSurface");
 
         return vk::raii::SurfaceKHR{instance, surface};
     }
