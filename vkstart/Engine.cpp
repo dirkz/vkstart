@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "QueueFamilyIndices.h"
 #include "ValidationLayers.h"
 
 namespace vkstart
@@ -52,27 +53,21 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
         vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
 
     auto devices = instance.enumeratePhysicalDevices();
-    for (const vk::raii::PhysicalDevice &device : devices)
+    for (const vk::raii::PhysicalDevice &physicalDevice : devices)
     {
-        if (device.getProperties().apiVersion < VK_API_VERSION_1_3)
+        if (physicalDevice.getProperties().apiVersion < VK_API_VERSION_1_3)
         {
             continue;
         }
 
-        vk::QueueFlags queueFlagsZero{};
-        auto queueFamilyProperties = device.getQueueFamilyProperties();
-        bool supportsGraphics = std::ranges::any_of(
-            queueFamilyProperties, [&queueFlagsZero](const vk::QueueFamilyProperties &qfp) {
-                vk::QueueFlags flags = qfp.queueFlags & vk::QueueFlagBits::eGraphics;
-                return flags != queueFlagsZero;
-            });
-        if (!supportsGraphics)
+        QueueFamilyIndices familiyIndices{physicalDevice};
+        if (!familiyIndices.IsComplete())
         {
             continue;
         }
 
         std::unordered_set<std::string> foundExtensions{};
-        auto extensions = device.enumerateDeviceExtensionProperties();
+        auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
         for (const vk::ExtensionProperties &extension : extensions)
         {
             if (requiredDeviceExtensions.contains(extension.extensionName))
@@ -82,7 +77,7 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
         }
         if (foundExtensions == requiredDeviceExtensions)
         {
-            return device;
+            return physicalDevice;
         }
     }
 

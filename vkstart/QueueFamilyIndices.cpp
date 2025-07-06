@@ -3,7 +3,7 @@
 namespace vkstart
 {
 
-QueueFamilyIndices::QueueFamilyIndices(vk::raii::PhysicalDevice physicalDevice)
+QueueFamilyIndices::QueueFamilyIndices(const vk::raii::PhysicalDevice &physicalDevice)
 {
     vk::QueueFlags queueFlagsZero{};
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties =

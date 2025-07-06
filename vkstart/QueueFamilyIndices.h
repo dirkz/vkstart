@@ -7,7 +7,7 @@ namespace vkstart
 
 struct QueueFamilyIndices
 {
-    QueueFamilyIndices(vk::raii::PhysicalDevice physicalDevice);
+    QueueFamilyIndices(const vk::raii::PhysicalDevice &physicalDevice);
 
     bool IsComplete() const;
 
