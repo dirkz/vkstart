@@ -1,12 +1,15 @@
-add_library(vkstart
-	OBJECT
+add_library(vkstart OBJECT
 	Engine.h
 	Engine.cpp
 	vkstart.h
 	DebugMessenger.h
 	DebugMessenger.cpp
 	ValidationLayers.h
-	ValidationLayers.cpp "QueueFamilyIndices.h" "QueueFamilyIndices.cpp" "EngineCreation.h" "EngineCreation.cpp")
+	ValidationLayers.cpp
+	QueueFamilyIndices.h
+	QueueFamilyIndices.cpp
+	EngineCreationHelper.h
+	EngineCreationHelper.cpp)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET vkstart PROPERTY CXX_STANDARD 20)

@@ -3,7 +3,7 @@
 #include "stdafx.h"
 
 #include "DebugMessenger.h"
-#include "EngineCreation.h"
+#include "EngineCreationHelper.h"
 #include "QueueFamilyIndices.h"
 
 namespace vkstart
