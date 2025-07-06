@@ -119,8 +119,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> windowInstanceExtensions)
     : m_context{vkGetInstanceProcAddr},
       m_instance{CreateInstance(m_context, windowInstanceExtensions)},
-      m_physicalDevice{PickPhysicalDevice(m_instance)},
-      m_queueFamilyIndices{QueueFamilyIndices{m_physicalDevice}},
+      m_physicalDevice{PickPhysicalDevice(m_instance)}, m_queueFamilyIndices{m_physicalDevice},
       m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)}
 {
     SetupDebugMessenger();
