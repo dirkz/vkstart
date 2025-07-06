@@ -23,6 +23,11 @@ QueueFamilyIndices::QueueFamilyIndices(const vk::raii::PhysicalDevice &physicalD
         {
             m_presentIndex = i;
         }
+
+        if (IsComplete())
+        {
+            break;
+        }
     }
 }
 
