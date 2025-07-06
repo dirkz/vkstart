@@ -68,7 +68,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     assert(vkGetInstanceProcAddr != nullptr);
 
-    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}};
+    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, SurfaceCreator{}};
 
     return SDL_APP_CONTINUE;
 }
