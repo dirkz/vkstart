@@ -7,6 +7,8 @@ namespace vkstart
 
 struct QueueFamilyIndices
 {
+    QueueFamilyIndices() {};
+
     QueueFamilyIndices(const vk::raii::PhysicalDevice &physicalDevice,
                        const vk::raii::SurfaceKHR &surface);
 
