@@ -45,6 +45,7 @@ struct Engine
     QueueFamilyIndices m_queueFamilyIndices;
 
     vk::raii::Device m_device = nullptr;
+
     vk::raii::SwapchainKHR m_swapchain = nullptr;
     vk::SurfaceFormatKHR m_swapchainImageFormat;
     vk::Extent2D m_swapchainExtent;
