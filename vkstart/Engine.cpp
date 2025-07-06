@@ -120,7 +120,8 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
     : m_context{vkGetInstanceProcAddr},
       m_instance{CreateInstance(m_context, windowInstanceExtensions)},
       m_physicalDevice{PickPhysicalDevice(m_instance)}, m_queueFamilyIndices{m_physicalDevice},
-      m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)}
+      m_device{CreateDevice(m_physicalDevice, m_queueFamilyIndices)},
+      m_graphicsQueue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0}
 {
     SetupDebugMessenger();
 }

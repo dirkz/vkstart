@@ -21,6 +21,7 @@ struct Engine
     vk::raii::PhysicalDevice m_physicalDevice;
     QueueFamilyIndices m_queueFamilyIndices;
     vk::raii::Device m_device;
+    vk::raii::Queue m_graphicsQueue;
 
     std::unique_ptr<DebugMessenger> m_debugMessenger;
 };
