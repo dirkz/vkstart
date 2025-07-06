@@ -6,7 +6,7 @@ add_library(vkstart
 	DebugMessenger.h
 	DebugMessenger.cpp
 	ValidationLayers.h
-	ValidationLayers.cpp)
+	ValidationLayers.cpp "QueueFamilyIndices.h" "QueueFamilyIndices.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET vkstart PROPERTY CXX_STANDARD 20)
