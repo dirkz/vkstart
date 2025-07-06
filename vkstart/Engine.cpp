@@ -86,15 +86,46 @@ static vk::raii::PhysicalDevice PickPhysicalDevice(vk::raii::Instance &instance)
 
 static vk::raii::Device CreateDevice(vk::raii::PhysicalDevice &physicalDevice)
 {
-    std::vector<vk::QueueFamilyProperties> queueFamilyProperties =
-        physicalDevice.getQueueFamilyProperties();
+    QueueFamilyIndices familyIndices = QueueFamilyIndices{physicalDevice};
+    if (!familyIndices.IsComplete())
+    {
+        throw std::runtime_error{"cannot create device: queue family indices incomplete"};
+    }
+
+    const uint32_t graphicsIndex = familyIndices.GraphicsIndex().value();
+    const std::array<float, 1> priorities{0.0f};
+    vk::DeviceQueueCreateInfo queueCreateInfo{{}, graphicsIndex, priorities};
+
+    // query for Vulkan 1.3 features
+    vk::PhysicalDeviceFeatures2 features = physicalDevice.getFeatures2();
+
+    vk::PhysicalDeviceVulkan13Features vulkan13Features{};
+    vulkan13Features.dynamicRendering = vk::True;
+
+    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures{};
+    extendedDynamicStateFeatures.extendedDynamicState = vk::True;
+
+    const std::vector<const char *> deviceExtensions = {
+        vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
+        vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
+    vk::DeviceCreateInfo deviceCreateInfo{{}, queueCreateInfo, {}, deviceExtensions};
+
+    vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceFeatures2,
+                       vk::PhysicalDeviceVulkan13Features,
+                       vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
+        createInfos{deviceCreateInfo, features, vulkan13Features, extendedDynamicStateFeatures};
+    vk::DeviceCreateInfo deviceCreateInfoChained = createInfos.get<vk::DeviceCreateInfo>();
+
+    vk::raii::Device device{physicalDevice, deviceCreateInfoChained};
+
+    return device;
 }
 
 Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
                std::span<const char *> windowInstanceExtensions)
     : m_context{vkGetInstanceProcAddr},
       m_instance{CreateInstance(m_context, windowInstanceExtensions)},
-      m_physicalDevice{PickPhysicalDevice(m_instance)}
+      m_physicalDevice{PickPhysicalDevice(m_instance)}, m_device{CreateDevice(m_physicalDevice)}
 {
     SetupDebugMessenger();
 }
