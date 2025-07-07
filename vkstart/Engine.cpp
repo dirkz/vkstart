@@ -173,8 +173,8 @@ void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
 
     vk::SurfaceFormatKHR swapChainImageFormat =
         ChooseSwapSurfaceFormat(m_physicalDevice.getSurfaceFormatsKHR(m_surface));
-    m_swapchainImageFormat = swapChainImageFormat.format;
 
+    m_swapchainImageFormat = swapChainImageFormat.format;
     m_swapchainExtent = ChooseSwapExtent(surfaceCapabilities, pixelWidth, pixelHeight);
 
     uint32_t minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
