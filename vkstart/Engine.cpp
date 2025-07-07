@@ -257,7 +257,7 @@ void Engine::CreateImageViews()
     }
 }
 
-static std::vector<char> ReadFile(const std::string &filename)
+static std::vector<char> ReadFile(const std::filesystem::path &filename)
 {
     std::filesystem::path basePath{sdl::GetBasePath()};
     std::filesystem::path filePath = basePath / filename;
@@ -269,7 +269,8 @@ static std::vector<char> ReadFile(const std::string &filename)
         throw std::runtime_error("failed to open file!");
     }
 
-    std::vector<char> buffer(file.tellg());
+    size_t fileSize = file.tellg();
+    std::vector<char> buffer(fileSize);
 
     file.seekg(0, std::ios::beg);
     file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
@@ -281,6 +282,7 @@ static std::vector<char> ReadFile(const std::string &filename)
 
 void Engine::CreateGraphicsPipeline()
 {
+    auto shaderCode = ReadFile(std::filesystem::path{"shaders"} / "shader.slang.spv");
 }
 
 } // namespace vkstart
