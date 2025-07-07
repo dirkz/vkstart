@@ -256,5 +256,8 @@ void Engine::CreateImageViews()
         m_swapchainImageViews.emplace_back(m_device, imageViewCreateInfo);
     }
 }
+void Engine::CreateGraphicsPipeline()
+{
+}
 
 } // namespace vkstart

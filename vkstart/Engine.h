@@ -24,6 +24,7 @@ struct Engine
         CreateDevice();
         CreateSwapChain(pixelWidth, pixelHeight);
         CreateImageViews();
+        CreateGraphicsPipeline();
 
         m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
         m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
@@ -36,6 +37,7 @@ struct Engine
     void CreateDevice();
     void CreateSwapChain(int pixelWidth, int pixelHeight);
     void CreateImageViews();
+    void CreateGraphicsPipeline();
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
