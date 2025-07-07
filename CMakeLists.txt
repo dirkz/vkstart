@@ -30,6 +30,9 @@ option(SDL_STATIC "Build SDL as a static library" ON)
 
 add_subdirectory(SDL-Hpp)
 add_subdirectory(vkstart)
+add_subdirectory(shaders)
+
+add_dependencies(${PROJECT_NAME} shaders)
 
 target_precompile_headers(${PROJECT_NAME} REUSE_FROM vkstart)
 
