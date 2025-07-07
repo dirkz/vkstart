@@ -280,9 +280,29 @@ static std::vector<char> ReadFile(const std::filesystem::path &filename)
     return buffer;
 }
 
+vk::raii::ShaderModule Engine::CreateShaderModule(const std::vector<char> &code) const
+{
+    const auto codeSize = static_cast<const uint32_t>(code.size());
+    const auto *pCode = reinterpret_cast<const uint32_t *>(code.data());
+    vk::ShaderModuleCreateInfo createInfo{{}, codeSize, pCode};
+
+    vk::raii::ShaderModule shaderModule{m_device, createInfo};
+
+    return shaderModule;
+}
+
 void Engine::CreateGraphicsPipeline()
 {
     auto shaderCode = ReadFile(std::filesystem::path{"shaders"} / "shader.slang.spv");
+    vk::raii::ShaderModule shaderModule = CreateShaderModule(shaderCode);
+
+    const auto vertexStage = vk::ShaderStageFlagBits::eVertex;
+    vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
+        {}, vertexStage, shaderModule, "VertexMain"};
+
+    const auto fragmentStage = vk::ShaderStageFlagBits::eFragment;
+    vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo{
+        {}, fragmentStage, shaderModule, "FragmentMain"};
 }
 
 } // namespace vkstart

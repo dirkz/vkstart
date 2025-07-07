@@ -8,7 +8,7 @@ function(create_shader source)
 	set(SHADER_TARGET ${CMAKE_CURRENT_BINARY_DIR}/${SHADER_OUTPUT_FILENAME})
 
 	set(OPTIONS1 -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name)
-	set(ENTRIES -entry VertMain -entry FragMain)
+	set(ENTRIES -entry VertexMain -entry FragmentMain)
 
 	add_custom_command(
 		OUTPUT ${SHADER_TARGET}
