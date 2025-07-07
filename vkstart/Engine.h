@@ -22,6 +22,7 @@ struct Engine
         m_surface = surfaceCreator(m_instance);
         PickPhysicalDevice();
         CreateDevice();
+        CreateSwapChain(pixelWidth, pixelHeight);
 
         m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
         m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
