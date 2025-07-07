@@ -297,12 +297,15 @@ void Engine::CreateGraphicsPipeline()
     vk::raii::ShaderModule shaderModule = CreateShaderModule(shaderCode);
 
     const auto vertexStage = vk::ShaderStageFlagBits::eVertex;
-    vk::PipelineShaderStageCreateInfo vertexShaderStageInfo{
+    vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo{
         {}, vertexStage, shaderModule, "VertexMain"};
 
     const auto fragmentStage = vk::ShaderStageFlagBits::eFragment;
-    vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo{
+    vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo{
         {}, fragmentStage, shaderModule, "FragmentMain"};
+
+    std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageCreateInfos{
+        vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
 }
 
 } // namespace vkstart
