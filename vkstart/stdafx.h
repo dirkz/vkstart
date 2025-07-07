@@ -10,6 +10,8 @@
 #include <array>
 #include <cassert>
 #include <exception>
+#include <filesystem>
+#include <fstream>
 #include <limits>
 #include <memory>
 #include <optional>
