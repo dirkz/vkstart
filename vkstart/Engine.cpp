@@ -230,4 +230,31 @@ void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
     m_swapchainImages = m_swapchain.getImages();
 }
 
+void Engine::CreateImageViews()
+{
+    m_swapchainImageViews.clear();
+
+    const vk::ImageAspectFlags imageAspectFlags = vk::ImageAspectFlagBits::eColor;
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    const vk::ImageSubresourceRange subresourceRange = {imageAspectFlags, baseMipLevel, levelCount,
+                                                        baseArrayLayer, layerCount};
+
+    const auto viewType = vk::ImageViewType::e2D;
+    const vk::ComponentMapping componentMapping = {
+        vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity,
+        vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity};
+    vk::ImageViewCreateInfo imageViewCreateInfo{{} /* flags */,   {} /* image */,
+                                                viewType,         m_swapchainImageFormat.format,
+                                                componentMapping, subresourceRange};
+
+    for (const vk::Image &image : m_swapchainImages)
+    {
+        imageViewCreateInfo.image = image;
+        m_swapchainImageViews.emplace_back(m_device, imageViewCreateInfo);
+    }
+}
+
 } // namespace vkstart

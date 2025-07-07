@@ -23,6 +23,7 @@ struct Engine
         PickPhysicalDevice();
         CreateDevice();
         CreateSwapChain(pixelWidth, pixelHeight);
+        CreateImageViews();
 
         m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
         m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
@@ -34,6 +35,7 @@ struct Engine
     void PickPhysicalDevice();
     void CreateDevice();
     void CreateSwapChain(int pixelWidth, int pixelHeight);
+    void CreateImageViews();
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
@@ -51,6 +53,7 @@ struct Engine
     vk::SurfaceFormatKHR m_swapchainImageFormat;
     vk::Extent2D m_swapchainExtent;
     std::vector<vk::Image> m_swapchainImages;
+    std::vector<vk::raii::ImageView> m_swapchainImageViews;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
