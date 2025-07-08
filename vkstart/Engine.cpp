@@ -308,12 +308,12 @@ void Engine::CreateGraphicsPipeline()
         vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
 
     std::vector dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
-    vk::PipelineDynamicStateCreateInfo dynamicState{{}, dynamicStates};
+    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo{{}, dynamicStates};
 
-    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
 
-    vk::PipelineInputAssemblyStateCreateInfo inputAssembly{{},
-                                                           vk::PrimitiveTopology::eTriangleList};
+    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{
+        {}, vk::PrimitiveTopology::eTriangleList};
 
     vk::Viewport viewport{0.0f,
                           0.0f,
@@ -334,13 +334,13 @@ void Engine::CreateGraphicsPipeline()
     const auto depthBiasEnable = vk::False;
     const float depthBiasSlopeFactor = 1.0f;
     const float lineWidth = 1.0f;
-    vk::PipelineRasterizationStateCreateInfo rasterizerCreateInfo{
+    vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo{
         {},        depthClampEnable, rasterizerDiscardEnable, polygonMode, cullMode,
         frontFace, depthBiasEnable,  depthBiasSlopeFactor,    lineWidth};
 
     const auto rasterizationSamples = vk::SampleCountFlagBits::e1;
     const auto sampleShadingEnabled = vk::False;
-    vk::PipelineMultisampleStateCreateInfo multisamplingCreateInfo{
+    vk::PipelineMultisampleStateCreateInfo multisampleStateCreateInfo{
         {}, rasterizationSamples, sampleShadingEnabled};
 
     const auto blendEnabled = vk::False;
@@ -348,11 +348,37 @@ void Engine::CreateGraphicsPipeline()
 
     const auto logicOpEnabled = vk::False;
     const auto logicOp = vk::LogicOp::eCopy;
-    vk::PipelineColorBlendStateCreateInfo colorBlending{
+    vk::PipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
         {}, logicOpEnabled, logicOp, {colorBlendAttachment}};
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, {}, {}};
     m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
+
+    const uint32_t viewMask = 0;
+    vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
+                                                                {m_swapchainImageFormat.format}};
+
+    const vk::PipelineCreateFlags flags{};
+    const std::array<vk::PipelineShaderStageCreateInfo, 2> stages{vertexShaderStageCreateInfo,
+                                                                  fragmentShaderStageCreateInfo};
+    const vk::PipelineTessellationStateCreateInfo *tesselationStateCreateInfo = nullptr;
+    const vk::PipelineDepthStencilStateCreateInfo *depthStencilStateCreateInfo = nullptr;
+    vk::GraphicsPipelineCreateInfo pipelineCreateInfo{flags,
+                                                      stages,
+                                                      &vertexInputStateCreateInfo,
+                                                      &inputAssemblyStateCreateInfo,
+                                                      tesselationStateCreateInfo,
+                                                      &viewportStateCreateInfo,
+                                                      &rasterizationStateCreateInfo,
+                                                      &multisampleStateCreateInfo,
+                                                      depthStencilStateCreateInfo,
+                                                      &colorBlendStateCreateInfo,
+                                                      &dynamicStateCreateInfo,
+                                                      m_pipelineLayout};
+
+    vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfos{
+        pipelineCreateInfo, pipelineRenderingCreateInfo};
+    vk::GraphicsPipelineCreateInfo createInfo = createInfos.get<vk::GraphicsPipelineCreateInfo>();
 }
 
 } // namespace vkstart
