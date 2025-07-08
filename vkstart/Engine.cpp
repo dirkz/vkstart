@@ -200,7 +200,7 @@ void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
     }
 
     const uint32_t imageArrayLayers = 1;
-    const VkBool32 clipped = VK_TRUE;
+    const auto clipped = vk::True;
     const auto imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
     const auto imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
     const vk::PresentModeKHR presentMode =
@@ -306,6 +306,51 @@ void Engine::CreateGraphicsPipeline()
 
     std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageCreateInfos{
         vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
+
+    std::vector dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+    vk::PipelineDynamicStateCreateInfo dynamicState{{}, dynamicStates};
+
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly{{},
+                                                           vk::PrimitiveTopology::eTriangleList};
+
+    vk::Viewport viewport{0.0f,
+                          0.0f,
+                          static_cast<float>(m_swapchainExtent.width),
+                          static_cast<float>(m_swapchainExtent.height),
+                          0.0f,
+                          1.0f};
+
+    vk::Rect2D scissorRect{vk::Offset2D{0, 0}, m_swapchainExtent};
+
+    const auto depthClampEnable = vk::False;
+    const auto rasterizerDiscardEnable = vk::False;
+    const auto polygonMode = vk::PolygonMode::eFill;
+    const auto cullMode = vk::CullModeFlagBits::eBack;
+    const auto frontFace = vk::FrontFace::eClockwise;
+    const auto depthBiasEnable = vk::False;
+    const float depthBiasSlopeFactor = 1.0f;
+    const float lineWidth = 1.0f;
+    vk::PipelineRasterizationStateCreateInfo rasterizerCreateInfo{
+        {},        depthClampEnable, rasterizerDiscardEnable, polygonMode, cullMode,
+        frontFace, depthBiasEnable,  depthBiasSlopeFactor,    lineWidth};
+
+    const auto rasterizationSamples = vk::SampleCountFlagBits::e1;
+    const auto sampleShadingEnabled = vk::False;
+    vk::PipelineMultisampleStateCreateInfo multisamplingCreateInfo{
+        {}, rasterizationSamples, sampleShadingEnabled};
+
+    const auto blendEnabled = vk::False;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment{blendEnabled};
+
+    const auto logicOpEnabled = vk::False;
+    const auto logicOp = vk::LogicOp::eCopy;
+    vk::PipelineColorBlendStateCreateInfo colorBlending{
+        {}, logicOpEnabled, logicOp, {colorBlendAttachment}};
+
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, {}, {}};
+    m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
 }
 
 } // namespace vkstart
