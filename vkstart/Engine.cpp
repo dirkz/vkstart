@@ -358,12 +358,11 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
                                                                 {m_swapchainImageFormat.format}};
 
-    const vk::PipelineCreateFlags flags{};
     const std::array<vk::PipelineShaderStageCreateInfo, 2> stages{vertexShaderStageCreateInfo,
                                                                   fragmentShaderStageCreateInfo};
     const vk::PipelineTessellationStateCreateInfo *tesselationStateCreateInfo = nullptr;
     const vk::PipelineDepthStencilStateCreateInfo *depthStencilStateCreateInfo = nullptr;
-    vk::GraphicsPipelineCreateInfo pipelineCreateInfo{flags,
+    vk::GraphicsPipelineCreateInfo pipelineCreateInfo{{},
                                                       stages,
                                                       &vertexInputStateCreateInfo,
                                                       &inputAssemblyStateCreateInfo,
