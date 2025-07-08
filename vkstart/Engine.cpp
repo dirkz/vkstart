@@ -382,4 +382,11 @@ void Engine::CreateGraphicsPipeline()
     m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, createInfo);
 }
 
+void Engine::CreateCommandPool()
+{
+    vk::CommandPoolCreateInfo poolCreateInfo{vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                                             m_queueFamilyIndices.GraphicsIndex()};
+    m_commandPool = vk::raii::CommandPool(m_device, poolCreateInfo);
+}
+
 } // namespace vkstart

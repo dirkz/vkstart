@@ -31,6 +31,7 @@ struct Engine
         CreateSwapChain(pixelWidth, pixelHeight);
         CreateImageViews();
         CreateGraphicsPipeline();
+        CreateCommandPool();
     }
 
   private:
@@ -42,6 +43,7 @@ struct Engine
     void CreateImageViews();
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
+    void CreateCommandPool();
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
@@ -63,6 +65,8 @@ struct Engine
 
     vk::raii::PipelineLayout m_pipelineLayout = nullptr;
     vk::raii::Pipeline m_graphicsPipeline = nullptr;
+
+    vk::raii::CommandPool m_commandPool = nullptr;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
