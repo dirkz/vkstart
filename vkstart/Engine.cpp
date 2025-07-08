@@ -397,4 +397,39 @@ void Engine::CreateCommandBuffer()
     m_commandBuffer = std::move(vk::raii::CommandBuffers{m_device, allocInfo}.front());
 }
 
+void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
+                                   vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
+                                   vk::AccessFlags2 dstAccessMask,
+                                   vk::PipelineStageFlags2 srcStageMask,
+                                   vk::PipelineStageFlags2 dstStageMask)
+{
+    const auto aspectMask = vk::ImageAspectFlagBits::eColor;
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
+                                                  baseArrayLayer, layerCount};
+
+    vk::ImageMemoryBarrier2 barrier{srcStageMask,
+                                    srcAccessMask,
+                                    dstStageMask,
+                                    dstAccessMask,
+                                    oldLayout,
+                                    newLayout,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    m_swapchainImages[imageIndex],
+                                    subresourceRange};
+
+    vk::DependencyInfo dependencyInfo = {{}, {}, {}, {barrier}};
+
+    m_commandBuffer.pipelineBarrier2(dependencyInfo);
+}
+
+void Engine::RecordCommandBuffer(uint32_t imageIndex)
+{
+    m_commandBuffer.begin({});
+}
+
 } // namespace vkstart

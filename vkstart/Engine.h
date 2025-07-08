@@ -46,6 +46,11 @@ struct Engine
     void CreateGraphicsPipeline();
     void CreateCommandPool();
     void CreateCommandBuffer();
+    void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
+                               vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
+                               vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask,
+                               vk::PipelineStageFlags2 dstStageMask);
+    void RecordCommandBuffer(uint32_t imageIndex);
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
