@@ -296,13 +296,13 @@ void Engine::CreateGraphicsPipeline()
     auto shaderCode = ReadFile(std::filesystem::path{"shaders"} / "shader.slang.spv");
     vk::raii::ShaderModule shaderModule = CreateShaderModule(shaderCode);
 
-    const auto vertexStage = vk::ShaderStageFlagBits::eVertex;
+    const auto vertexStageFlags = vk::ShaderStageFlagBits::eVertex;
     vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo{
-        {}, vertexStage, shaderModule, "VertexMain"};
+        {}, vertexStageFlags, shaderModule, "VertexMain"};
 
-    const auto fragmentStage = vk::ShaderStageFlagBits::eFragment;
+    const auto fragmentStageFlags = vk::ShaderStageFlagBits::eFragment;
     vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo{
-        {}, fragmentStage, shaderModule, "FragmentMain"};
+        {}, fragmentStageFlags, shaderModule, "FragmentMain"};
 
     std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageCreateInfos{
         vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
@@ -352,7 +352,7 @@ void Engine::CreateGraphicsPipeline()
         {}, logicOpEnabled, logicOp, {colorBlendAttachment}};
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, {}, {}};
-    m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
+    m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutInfo};
 
     const uint32_t viewMask = 0;
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
@@ -379,14 +379,14 @@ void Engine::CreateGraphicsPipeline()
         pipelineCreateInfo, pipelineRenderingCreateInfo};
     vk::GraphicsPipelineCreateInfo createInfo = createInfos.get<vk::GraphicsPipelineCreateInfo>();
 
-    m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, createInfo);
+    m_graphicsPipeline = vk::raii::Pipeline{m_device, nullptr, createInfo};
 }
 
 void Engine::CreateCommandPool()
 {
     vk::CommandPoolCreateInfo poolCreateInfo{vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                                              m_queueFamilyIndices.GraphicsIndex()};
-    m_commandPool = vk::raii::CommandPool(m_device, poolCreateInfo);
+    m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
 } // namespace vkstart
