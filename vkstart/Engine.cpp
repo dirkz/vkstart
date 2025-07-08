@@ -389,4 +389,12 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+void Engine::CreateCommandBuffer()
+{
+    const uint32_t commandBufferCount = 1;
+    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary,
+                                            commandBufferCount};
+    m_commandBuffer = std::move(vk::raii::CommandBuffers{m_device, allocInfo}.front());
+}
+
 } // namespace vkstart
