@@ -324,6 +324,8 @@ void Engine::CreateGraphicsPipeline()
 
     vk::Rect2D scissorRect{vk::Offset2D{0, 0}, m_swapchainExtent};
 
+    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo{{}, {viewport}, {scissorRect}};
+
     const auto depthClampEnable = vk::False;
     const auto rasterizerDiscardEnable = vk::False;
     const auto polygonMode = vk::PolygonMode::eFill;
