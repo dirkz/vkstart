@@ -378,6 +378,8 @@ void Engine::CreateGraphicsPipeline()
     vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfos{
         pipelineCreateInfo, pipelineRenderingCreateInfo};
     vk::GraphicsPipelineCreateInfo createInfo = createInfos.get<vk::GraphicsPipelineCreateInfo>();
+
+    m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, createInfo);
 }
 
 } // namespace vkstart

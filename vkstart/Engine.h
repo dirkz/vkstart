@@ -62,6 +62,7 @@ struct Engine
     std::vector<vk::raii::ImageView> m_swapchainImageViews;
 
     vk::raii::PipelineLayout m_pipelineLayout = nullptr;
+    vk::raii::Pipeline m_graphicsPipeline = nullptr;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
