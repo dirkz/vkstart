@@ -430,6 +430,60 @@ void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayou
 void Engine::RecordCommandBuffer(uint32_t imageIndex)
 {
     m_commandBuffer.begin({});
+
+    // Before starting rendering, transition the swapchain image to COLOR_ATTACHMENT_OPTIMAL
+    TransitionImageLayout(imageIndex, vk::ImageLayout::eUndefined,
+                          vk::ImageLayout::eColorAttachmentOptimal,
+                          {}, // srcAccessMask (no need to wait for previous operations)
+                          vk::AccessFlagBits2::eColorAttachmentWrite,        // dstAccessMask
+                          vk::PipelineStageFlagBits2::eTopOfPipe,            // srcStage
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput // dstStage
+    );
+
+    const auto clearValue = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
+    const auto &imageView = m_swapchainImageViews[imageIndex];
+    const auto imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    const auto resolveMode = vk::ResolveModeFlagBits::eNone;
+    const vk::ImageView resolveImageView = {};
+    const auto resolveImageLayout = vk::ImageLayout::eUndefined;
+    const auto loadOp = vk::AttachmentLoadOp::eClear;
+    const auto storeOp = vk::AttachmentStoreOp::eStore;
+    vk::RenderingAttachmentInfo attachmentInfo{imageView,        imageLayout,        resolveMode,
+                                               resolveImageView, resolveImageLayout, loadOp,
+                                               storeOp,          clearValue};
+
+    const vk::Rect2D renderArea{{0, 0}, m_swapchainExtent};
+    const uint32_t layerCount = 1;
+    const uint32_t viewMask = 0;
+    vk::RenderingInfo renderingInfo = {{}, renderArea, layerCount, viewMask, {attachmentInfo}};
+
+    m_commandBuffer.beginRendering(renderingInfo);
+
+    m_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline);
+
+    m_commandBuffer.setViewport(
+        0, vk::Viewport{0.0f, 0.0f, static_cast<float>(m_swapchainExtent.width),
+                        static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f});
+    m_commandBuffer.setScissor(0, vk::Rect2D{vk::Offset2D{0, 0}, m_swapchainExtent});
+
+    const uint32_t vertexCount = 3;
+    const uint32_t instanceCount = 1;
+    const uint32_t firstVertex = 0;
+    const uint32_t firstInstance = 0;
+    m_commandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
+
+    m_commandBuffer.endRendering();
+
+    // After rendering, transition the swapchain image to PRESENT_SRC
+    TransitionImageLayout(imageIndex, vk::ImageLayout::eColorAttachmentOptimal,
+                          vk::ImageLayout::ePresentSrcKHR,
+                          vk::AccessFlagBits2::eColorAttachmentWrite,         // srcAccessMask
+                          {},                                                 // dstAccessMask
+                          vk::PipelineStageFlagBits2::eColorAttachmentOutput, // srcStage
+                          vk::PipelineStageFlagBits2::eBottomOfPipe           // dstStage
+    );
+
+    m_commandBuffer.end();
 }
 
 } // namespace vkstart
