@@ -5,6 +5,10 @@
 namespace vkstart
 {
 
+const std::unordered_set<std::string> RequiredDeviceExtensions{
+    vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
+    vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
+
 void Engine::DrawFrame()
 {
     auto [result, imageIndex] = m_swapchain.acquireNextImage(std::numeric_limits<uint64_t>::max(),
@@ -79,10 +83,6 @@ void Engine::SetupDebugMessenger()
 
 void Engine::PickPhysicalDevice()
 {
-    std::unordered_set<std::string> requiredDeviceExtensions{
-        vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
-        vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
-
     auto devices = m_instance.enumeratePhysicalDevices();
     for (const vk::raii::PhysicalDevice &physicalDevice : devices)
     {
@@ -101,12 +101,12 @@ void Engine::PickPhysicalDevice()
         auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
         for (const vk::ExtensionProperties &extension : extensions)
         {
-            if (requiredDeviceExtensions.contains(extension.extensionName))
+            if (RequiredDeviceExtensions.contains(extension.extensionName))
             {
                 foundExtensions.insert(extension.extensionName);
             }
         }
-        if (foundExtensions == requiredDeviceExtensions)
+        if (foundExtensions == RequiredDeviceExtensions)
         {
             m_physicalDevice = physicalDevice;
             m_queueFamilyIndices = familiyIndices;
@@ -133,9 +133,11 @@ void Engine::CreateDevice()
     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures{};
     extendedDynamicStateFeatures.extendedDynamicState = vk::True;
 
-    const std::vector<const char *> deviceExtensions = {
-        vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
-        vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
+    std::vector<const char *> deviceExtensions{};
+    for (const std::string &extension : RequiredDeviceExtensions)
+    {
+        deviceExtensions.push_back(extension.c_str());
+    }
     vk::DeviceCreateInfo deviceCreateInfo{{}, queueCreateInfo, {}, deviceExtensions};
 
     vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceFeatures2,
