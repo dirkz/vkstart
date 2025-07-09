@@ -5,6 +5,26 @@
 namespace vkstart
 {
 
+void Engine::DrawFrame()
+{
+    auto [result, imageIndex] = m_swapchain.acquireNextImage(std::numeric_limits<uint64_t>::max(),
+                                                             *m_presentCompleteSemaphore);
+    RecordCommandBuffer(imageIndex);
+
+    m_device.resetFences(*m_drawFence);
+
+    const vk::PipelineStageFlags waitDestinationStageMask{
+        vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    const vk::SubmitInfo submitInfo{*m_presentCompleteSemaphore, waitDestinationStageMask,
+                                    *m_commandBuffer, *m_renderFinishedSemaphore};
+    m_graphicsQueue.submit(submitInfo, *m_drawFence);
+
+    while (vk::Result::eTimeout ==
+           m_device.waitForFences(*m_drawFence, vk::True, std::numeric_limits<uint64_t>::max()))
+    {
+    }
+}
+
 void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
 {
     bool validationLayersSupported = ValidationLayers::CheckSupport(m_context);

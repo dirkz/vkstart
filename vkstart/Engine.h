@@ -36,6 +36,8 @@ struct Engine
         CreateSyncObjects();
     }
 
+    void DrawFrame();
+
   private:
     void CreateInstance(std::span<const char *> windowInstanceExtensions);
     void SetupDebugMessenger();
