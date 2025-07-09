@@ -28,14 +28,17 @@ bool ValidationLayers::CheckSupport(vk::raii::Context &context)
         return true;
     }
 
-    auto instanceLayers = context.enumerateInstanceLayerProperties();
+    std::vector<vk::LayerProperties> instanceLayerProperties =
+        context.enumerateInstanceLayerProperties();
 
     // require that ALL our validation layers (all_of) are found in the instance layers (any_of)
-    bool all = std::ranges::all_of(ValidationLayersList, [&instanceLayers](const char *pLayerName) {
-        return std::ranges::any_of(instanceLayers, [&pLayerName](vk::LayerProperties const &lp) {
-            return strcmp(pLayerName, lp.layerName) == 0;
+    bool all = std::ranges::all_of(
+        ValidationLayersList, [&instanceLayerProperties](const char *pLayerName) {
+            return std::ranges::any_of(instanceLayerProperties,
+                                       [&pLayerName](vk::LayerProperties const &lp) {
+                                           return strcmp(pLayerName, lp.layerName) == 0;
+                                       });
         });
-    });
 
     return all;
 }
