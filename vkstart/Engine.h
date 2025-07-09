@@ -33,6 +33,7 @@ struct Engine
         CreateGraphicsPipeline();
         CreateCommandPool();
         CreateCommandBuffer();
+        CreateSyncObjects();
     }
 
   private:
@@ -51,6 +52,7 @@ struct Engine
                                vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask,
                                vk::PipelineStageFlags2 dstStageMask);
     void RecordCommandBuffer(uint32_t imageIndex);
+    void CreateSyncObjects();
 
     vk::raii::Context m_context;
     vk::raii::Instance m_instance = nullptr;
@@ -75,6 +77,10 @@ struct Engine
 
     vk::raii::CommandPool m_commandPool = nullptr;
     vk::raii::CommandBuffer m_commandBuffer = nullptr;
+
+    vk::raii::Semaphore m_presentCompleteSemaphore = nullptr;
+    vk::raii::Semaphore m_renderFinishedSemaphore = nullptr;
+    vk::raii::Fence m_drawFence = nullptr;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;

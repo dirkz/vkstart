@@ -486,4 +486,12 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
     m_commandBuffer.end();
 }
 
+void Engine::CreateSyncObjects()
+{
+    const vk::SemaphoreCreateInfo semaphoreCreateInfo{};
+    m_presentCompleteSemaphore = vk::raii::Semaphore{m_device, semaphoreCreateInfo};
+    m_renderFinishedSemaphore = vk::raii::Semaphore{m_device, semaphoreCreateInfo};
+    m_drawFence = vk::raii::Fence{m_device, {vk::FenceCreateFlagBits::eSignaled}};
+}
+
 } // namespace vkstart
