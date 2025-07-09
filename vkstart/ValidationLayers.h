@@ -11,7 +11,7 @@ struct ValidationLayers
     static std::vector<const char *> Required();
     static bool CheckSupport(vk::raii::Context &context);
     static std::vector<const char *> RequiredExtensions(
-        vk::raii::Context &context, std::span<const char *> requiredInstanceExtensions);
+        vk::raii::Context &context, std::span<const char *> windowInstanceExtensions);
 };
 
 } // namespace vkstart

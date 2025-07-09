@@ -44,10 +44,10 @@ bool ValidationLayers::CheckSupport(vk::raii::Context &context)
 }
 
 std::vector<const char *> ValidationLayers::RequiredExtensions(
-    vk::raii::Context &context, std::span<const char *> requiredInstanceExtensions)
+    vk::raii::Context &context, std::span<const char *> windowInstanceExtensions)
 {
-    std::vector<const char *> extensions{requiredInstanceExtensions.begin(),
-                                         requiredInstanceExtensions.end()};
+    std::vector<const char *> extensions{windowInstanceExtensions.begin(),
+                                         windowInstanceExtensions.end()};
 
     if (ValidationLayersEnabled)
     {
