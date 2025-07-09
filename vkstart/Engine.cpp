@@ -382,7 +382,17 @@ void Engine::CreateGraphicsPipeline()
         {}, rasterizationSamples, sampleShadingEnabled};
 
     const auto blendEnabled = vk::False;
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment{blendEnabled};
+    const auto colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    const auto srcColorBlendFactor = vk::BlendFactor::eZero;
+    const auto dstColorBlendFactor = vk::BlendFactor::eZero;
+    const auto colorBlendOp = vk::BlendOp::eAdd;
+    const auto srcAlphaBlendFactor = vk::BlendFactor::eZero;
+    const auto dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    const auto alphaBlendOp = vk::BlendOp::eAdd;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment{
+        blendEnabled,        srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
+        srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp,        colorWriteMask};
 
     const auto logicOpEnabled = vk::False;
     const auto logicOp = vk::LogicOp::eCopy;
