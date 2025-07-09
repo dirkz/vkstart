@@ -8,6 +8,8 @@
 namespace vkstart
 {
 
+constexpr uint32_t MaxFramesInFlight = 2;
+
 struct Engine
 {
     template <class T>
@@ -78,11 +80,13 @@ struct Engine
     vk::raii::Pipeline m_graphicsPipeline = nullptr;
 
     vk::raii::CommandPool m_commandPool = nullptr;
-    vk::raii::CommandBuffer m_commandBuffer = nullptr;
+    std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 
-    vk::raii::Semaphore m_presentCompleteSemaphore = nullptr;
-    vk::raii::Semaphore m_renderFinishedSemaphore = nullptr;
-    vk::raii::Fence m_drawFence = nullptr;
+    std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
+    std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
+    std::vector<vk::raii::Fence> m_inFlightFences;
+
+    uint32_t m_currentFrame = 0;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
