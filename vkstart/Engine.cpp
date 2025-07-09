@@ -125,7 +125,7 @@ void Engine::CreateDevice()
     vk::DeviceQueueCreateInfo queueCreateInfo{{}, graphicsIndex, priorities};
 
     // query for Vulkan 1.3 features
-    vk::PhysicalDeviceFeatures2 features = m_physicalDevice.getFeatures2();
+    vk::PhysicalDeviceFeatures2 features2 = m_physicalDevice.getFeatures2();
 
     vk::PhysicalDeviceVulkan13Features vulkan13Features{};
     vulkan13Features.dynamicRendering = vk::True;
@@ -140,10 +140,15 @@ void Engine::CreateDevice()
     }
     vk::DeviceCreateInfo deviceCreateInfo{{}, queueCreateInfo, {}, deviceExtensions};
 
+    const auto synchronization2 = vk::True;
+    vk::PhysicalDeviceSynchronization2Features synchronization2Features{synchronization2};
+
     vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceFeatures2,
+                       vk::PhysicalDeviceSynchronization2Features,
                        vk::PhysicalDeviceVulkan13Features,
                        vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
-        createInfos{deviceCreateInfo, features, vulkan13Features, extendedDynamicStateFeatures};
+        createInfos{deviceCreateInfo, features2, synchronization2Features, vulkan13Features,
+                    extendedDynamicStateFeatures};
     vk::DeviceCreateInfo deviceCreateInfoChained = createInfos.get<vk::DeviceCreateInfo>();
 
     m_device = vk::raii::Device{m_physicalDevice, deviceCreateInfoChained};
