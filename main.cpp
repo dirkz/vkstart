@@ -19,6 +19,11 @@ struct Application
         }
     }
 
+    Engine &GetEngine()
+    {
+        return m_engine;
+    }
+
   private:
     SDL_Window *m_window = nullptr;
     Engine m_engine;
@@ -114,6 +119,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    Application *appData = reinterpret_cast<Application *>(appstate);
+
+    appData->GetEngine().DrawFrame();
+
     return SDL_APP_CONTINUE;
 }
 

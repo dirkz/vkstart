@@ -23,6 +23,9 @@ void Engine::DrawFrame()
            m_device.waitForFences(*m_drawFence, vk::True, std::numeric_limits<uint64_t>::max()))
     {
     }
+
+    const vk::PresentInfoKHR presentInfoKHR{*m_renderFinishedSemaphore, *m_swapchain, imageIndex};
+    result = m_presentQueue.presentKHR(presentInfoKHR);
 }
 
 void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
