@@ -11,12 +11,13 @@ const std::unordered_set<std::string> RequiredDeviceExtensions{
 
 void Engine::DrawFrame()
 {
+    m_presentQueue.waitIdle();
+
     auto [result, imageIndex] = m_swapchain.acquireNextImage(std::numeric_limits<uint64_t>::max(),
                                                              *m_presentCompleteSemaphore);
     RecordCommandBuffer(imageIndex);
 
     m_device.resetFences(*m_drawFence);
-
     const vk::PipelineStageFlags waitDestinationStageMask{
         vk::PipelineStageFlagBits::eColorAttachmentOutput};
     const vk::SubmitInfo submitInfo{*m_presentCompleteSemaphore, waitDestinationStageMask,
@@ -30,6 +31,17 @@ void Engine::DrawFrame()
 
     const vk::PresentInfoKHR presentInfoKHR{*m_renderFinishedSemaphore, *m_swapchain, imageIndex};
     result = m_presentQueue.presentKHR(presentInfoKHR);
+
+    switch (result)
+    {
+    case vk::Result::eSuccess:
+        break;
+    case vk::Result::eSuboptimalKHR:
+        SDL_Log("vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR!");
+        break;
+    default:
+        break; // an unexpected result is returned!
+    }
 }
 
 void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
