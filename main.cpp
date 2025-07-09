@@ -5,8 +5,24 @@
 
 using namespace vkstart;
 
-static SDL_Window *window = nullptr;
-static Engine *engine = nullptr;
+struct Application
+{
+    Application(SDL_Window *window, Engine &engine) : m_window{window}, m_engine{std::move(engine)}
+    {
+    }
+
+    ~Application()
+    {
+        if (m_window)
+        {
+            SDL_DestroyWindow(m_window);
+        }
+    }
+
+  private:
+    SDL_Window *m_window = nullptr;
+    Engine m_engine;
+};
 
 static void HandleSDLError(bool errorCheck, const char *functionName)
 {
@@ -33,15 +49,22 @@ static void HandleSDLError(bool errorCheck, const char *functionName)
 
 struct SurfaceCreator
 {
+    SurfaceCreator(SDL_Window *window) : m_window{window}
+    {
+    }
+
     vk::raii::SurfaceKHR operator()(const vk::raii::Instance &instance)
     {
         VkSurfaceKHR surface = nullptr;
 
-        bool success = SDL_Vulkan_CreateSurface(window, *instance, nullptr, &surface);
+        bool success = SDL_Vulkan_CreateSurface(m_window, *instance, nullptr, &surface);
         HandleSDLError(!success, "SDL_Vulkan_CreateSurface");
 
         return vk::raii::SurfaceKHR{instance, surface};
     }
+
+  private:
+    SDL_Window *m_window;
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -49,7 +72,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
 
-    window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
+    SDL_Window *window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
 
     Uint32 numSdlInstanceExtensions = 0;
     const char *const *const sdlInstanceExtensions =
@@ -71,8 +94,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     int pixelWidth, pixelHeight;
     sdl::GetWindowSize(window, &pixelWidth, &pixelHeight);
 
-    engine = new Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, SurfaceCreator{},
-                        pixelWidth, pixelHeight};
+    Engine engine = Engine{vkGetInstanceProcAddr, std::span{instanceExtensions},
+                           SurfaceCreator{window}, pixelWidth, pixelHeight};
+
+    Application *appData = new Application{window, engine};
+    *appstate = appData;
 
     return SDL_APP_CONTINUE;
 }
@@ -93,13 +119,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    if (engine)
-    {
-        free(engine);
-    }
-
-    if (window)
-    {
-        SDL_DestroyWindow(window);
-    }
+    Application *appData = reinterpret_cast<Application *>(appstate);
+    free(appData);
 }
