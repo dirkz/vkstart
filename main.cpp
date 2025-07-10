@@ -7,16 +7,9 @@ using namespace vkstart;
 
 struct Application
 {
-    Application(SDL_Window *window, Engine &engine) : m_window{window}, m_engine{std::move(engine)}
+    Application(SDL3Window &window, Engine &engine)
+        : m_window{std::move(window)}, m_engine{std::move(engine)}
     {
-    }
-
-    ~Application()
-    {
-        if (m_window)
-        {
-            SDL_DestroyWindow(m_window);
-        }
     }
 
     Engine &GetEngine()
@@ -25,7 +18,7 @@ struct Application
     }
 
   private:
-    SDL_Window *m_window = nullptr;
+    SDL3Window m_window;
     Engine m_engine;
 };
 
@@ -54,8 +47,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
 
-    SDL_Window *window =
+    SDL_Window *sdlWindow =
         sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+
+    SDL3Window window{sdlWindow};
 
     Uint32 numSdlInstanceExtensions = 0;
     const char *const *const sdlInstanceExtensions =
@@ -75,10 +70,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     assert(vkGetInstanceProcAddr != nullptr);
 
     int pixelWidth, pixelHeight;
-    sdl::GetWindowSize(window, &pixelWidth, &pixelHeight);
+    sdl::GetWindowSize(sdlWindow, &pixelWidth, &pixelHeight);
 
     Engine engine = Engine{vkGetInstanceProcAddr, std::span{instanceExtensions},
-                           SurfaceCreator{window}, pixelWidth, pixelHeight};
+                           SurfaceCreator{sdlWindow}, pixelWidth, pixelHeight};
 
     Application *appData = new Application{window, engine};
     *appstate = appData;

@@ -7,6 +7,12 @@ SDL3Window::SDL3Window(SDL_Window *window) : m_window{window}
 {
 }
 
+SDL3Window::SDL3Window(SDL3Window &&other)
+{
+    m_window = other.m_window;
+    other.m_window = nullptr;
+}
+
 SDL3Window::~SDL3Window()
 {
     if (m_window)
