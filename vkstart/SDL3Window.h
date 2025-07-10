@@ -33,7 +33,7 @@ inline void HandleSDLError(bool errorCheck, const char *functionName)
 struct SDL3Window : public IWindow
 {
     SDL3Window(SDL_Window *window);
-    SDL3Window(SDL3Window &&other);
+    SDL3Window(SDL3Window &&other) noexcept;
 
     ~SDL3Window();
 

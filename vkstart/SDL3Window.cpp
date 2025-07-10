@@ -7,7 +7,7 @@ SDL3Window::SDL3Window(SDL_Window *window) : m_window{window}
 {
 }
 
-SDL3Window::SDL3Window(SDL3Window &&other)
+SDL3Window::SDL3Window(SDL3Window &&other) noexcept
 {
     m_window = other.m_window;
     other.m_window = nullptr;
@@ -45,7 +45,7 @@ std::vector<std::string> SDL3Window::RequiredInstanceExtensions()
 
     std::vector<std::string> extensions{};
 
-    for (auto i = 0; i < numInstanceExtensions; ++i)
+    for (Uint32 i = 0; i < numInstanceExtensions; ++i)
     {
         extensions.push_back(instanceExtensions[i]);
     }

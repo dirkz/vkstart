@@ -11,6 +11,33 @@ const std::unordered_set<std::string> RequiredDeviceExtensions{
     vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
     vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
 
+Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
+               std::span<const char *> windowInstanceExtensions, IWindow *window)
+
+    : m_context{vkGetInstanceProcAddr}
+{
+    CreateInstance(windowInstanceExtensions);
+    SetupDebugMessenger();
+
+    m_surface = window->CreateSurface(m_instance);
+
+    PickPhysicalDevice();
+    CreateDevice();
+
+    m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
+    m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
+
+    int pixelWidth, pixelHeight;
+    window->GetPixelDimensions(&pixelWidth, &pixelHeight);
+    CreateSwapChain(pixelWidth, pixelHeight);
+
+    CreateImageViews();
+    CreateGraphicsPipeline();
+    CreateCommandPool();
+    CreateCommandBuffer();
+    CreateSyncObjects();
+}
+
 void Engine::DrawFrame()
 {
     while (vk::Result::eTimeout == m_device.waitForFences({m_inFlightFences[m_currentFrame]},

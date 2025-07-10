@@ -7,9 +7,16 @@ using namespace vkstart;
 
 struct Application
 {
-    Application(SDL3Window &window, Engine &engine)
-        : m_window{std::move(window)}, m_engine{std::move(engine)}
+    Application(SDL3Window *window, Engine &engine) : m_window{window}, m_engine{std::move(engine)}
     {
+    }
+
+    ~Application()
+    {
+        if (m_window)
+        {
+            delete m_window;
+        }
     }
 
     Engine &GetEngine()
@@ -18,7 +25,7 @@ struct Application
     }
 
   private:
-    SDL3Window m_window;
+    SDL3Window *m_window;
     Engine m_engine;
 };
 
@@ -50,7 +57,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_Window *sdlWindow =
         sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
-    SDL3Window window{sdlWindow};
+    SDL3Window *window = new SDL3Window{sdlWindow};
 
     Uint32 numSdlInstanceExtensions = 0;
     const char *const *const sdlInstanceExtensions =
@@ -72,8 +79,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     int pixelWidth, pixelHeight;
     sdl::GetWindowSize(sdlWindow, &pixelWidth, &pixelHeight);
 
-    Engine engine = Engine{vkGetInstanceProcAddr, std::span{instanceExtensions},
-                           SurfaceCreator{sdlWindow}, pixelWidth, pixelHeight};
+    Engine engine = Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, window};
 
     Application *appData = new Application{window, engine};
     *appstate = appData;

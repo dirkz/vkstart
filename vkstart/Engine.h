@@ -3,6 +3,7 @@
 #include "stdafx.h"
 
 #include "DebugMessenger.h"
+#include "IWindow.h"
 #include "QueueFamilyIndices.h"
 
 namespace vkstart
@@ -10,31 +11,8 @@ namespace vkstart
 
 struct Engine
 {
-    template <class T>
     Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-           std::span<const char *> windowInstanceExtensions, T surfaceCreator, int pixelWidth,
-           int pixelHeight)
-
-        : m_context{vkGetInstanceProcAddr}
-    {
-        CreateInstance(windowInstanceExtensions);
-        SetupDebugMessenger();
-
-        m_surface = surfaceCreator(m_instance);
-
-        PickPhysicalDevice();
-        CreateDevice();
-
-        m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
-        m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
-
-        CreateSwapChain(pixelWidth, pixelHeight);
-        CreateImageViews();
-        CreateGraphicsPipeline();
-        CreateCommandPool();
-        CreateCommandBuffer();
-        CreateSyncObjects();
-    }
+           std::span<const char *> windowInstanceExtensions, IWindow *window);
 
     void DrawFrame();
 
