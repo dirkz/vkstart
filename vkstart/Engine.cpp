@@ -20,7 +20,7 @@ void Engine::DrawFrame()
     }
 
     auto [result, imageIndex] = m_swapchain.acquireNextImage(
-        std::numeric_limits<uint64_t>::max(), m_presentCompleteSemaphores[m_currentFrame]);
+        std::numeric_limits<uint64_t>::max(), m_presentCompleteSemaphores[m_currentImage]);
 
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
@@ -28,16 +28,16 @@ void Engine::DrawFrame()
 
     RecordCommandBuffer(imageIndex);
 
-    const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentFrame];
+    const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentImage];
     const vk::PipelineStageFlags waitDestinationStageMask{
         vk::PipelineStageFlagBits::eColorAttachmentOutput};
     const vk::CommandBuffer commandBuffer = m_commandBuffers[m_currentFrame];
-    const vk::Semaphore signalSemaphore = m_renderFinishedSemaphores[m_currentFrame];
+    const vk::Semaphore signalSemaphore = m_renderFinishedSemaphores[m_currentImage];
     const vk::SubmitInfo submitInfo{waitSemaphore, waitDestinationStageMask, commandBuffer,
                                     signalSemaphore};
     m_graphicsQueue.submit(submitInfo, m_inFlightFences[m_currentFrame]);
 
-    const vk::Semaphore waitSemaphore2 = m_renderFinishedSemaphores[m_currentFrame];
+    const vk::Semaphore waitSemaphore2 = m_renderFinishedSemaphores[m_currentImage];
     const vk::PresentInfoKHR presentInfoKHR{waitSemaphore2, *m_swapchain, imageIndex};
     result = m_presentQueue.presentKHR(presentInfoKHR);
 
@@ -53,6 +53,7 @@ void Engine::DrawFrame()
     }
 
     m_currentFrame = (m_currentFrame + 1) % MaxFramesInFlight;
+    m_currentImage = (m_currentImage + 1) % m_swapchainImages.size();
 }
 
 void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
@@ -549,17 +550,20 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
 
 void Engine::CreateSyncObjects()
 {
-    m_presentCompleteSemaphores.clear();
-    m_renderFinishedSemaphores.clear();
     m_inFlightFences.clear();
-
-    const vk::SemaphoreCreateInfo semaphoreCreateInfo{};
     const vk::FenceCreateInfo fenceCreateInfo{vk::FenceCreateFlagBits::eSignaled};
     for (auto i = 0; i < MaxFramesInFlight; ++i)
     {
+        m_inFlightFences.emplace_back(m_device, fenceCreateInfo);
+    }
+
+    m_presentCompleteSemaphores.clear();
+    m_renderFinishedSemaphores.clear();
+    const vk::SemaphoreCreateInfo semaphoreCreateInfo{};
+    for (auto i = 0; i < m_swapchainImages.size(); ++i)
+    {
         m_presentCompleteSemaphores.emplace_back(m_device, semaphoreCreateInfo);
         m_renderFinishedSemaphores.emplace_back(m_device, semaphoreCreateInfo);
-        m_inFlightFences.emplace_back(m_device, fenceCreateInfo);
     }
 }
 

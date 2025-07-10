@@ -85,6 +85,7 @@ struct Engine
     std::vector<vk::raii::Fence> m_inFlightFences;
 
     uint32_t m_currentFrame = 0;
+    uint32_t m_currentImage = 0;
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
