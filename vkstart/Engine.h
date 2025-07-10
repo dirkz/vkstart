@@ -8,8 +8,6 @@
 namespace vkstart
 {
 
-constexpr uint32_t MaxFramesInFlight = 2;
-
 struct Engine
 {
     template <class T>

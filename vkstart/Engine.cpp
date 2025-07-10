@@ -5,6 +5,8 @@
 namespace vkstart
 {
 
+constexpr uint32_t MaxFramesInFlight = 2;
+
 const std::unordered_set<std::string> RequiredDeviceExtensions{
     vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
     vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
@@ -22,6 +24,8 @@ void Engine::DrawFrame()
 
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
+    m_commandBuffers[m_currentFrame].reset();
+
     RecordCommandBuffer(imageIndex);
 
     const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentFrame];
@@ -32,12 +36,6 @@ void Engine::DrawFrame()
     const vk::SubmitInfo submitInfo{waitSemaphore, waitDestinationStageMask, commandBuffer,
                                     signalSemaphore};
     m_graphicsQueue.submit(submitInfo, m_inFlightFences[m_currentFrame]);
-
-    while (vk::Result::eTimeout == m_device.waitForFences({m_inFlightFences[m_currentFrame]},
-                                                          vk::True,
-                                                          std::numeric_limits<uint64_t>::max()))
-    {
-    }
 
     const vk::Semaphore waitSemaphore2 = m_renderFinishedSemaphores[m_currentFrame];
     const vk::PresentInfoKHR presentInfoKHR{waitSemaphore2, *m_swapchain, imageIndex};
