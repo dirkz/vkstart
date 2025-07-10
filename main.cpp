@@ -29,29 +29,6 @@ struct Application
     Engine m_engine;
 };
 
-static void HandleSDLError(bool errorCheck, const char *functionName)
-{
-    if (errorCheck)
-    {
-        constexpr size_t ErrorMessageSize = 256;
-        char errorMsg[ErrorMessageSize];
-
-        const char *sdlErrorMessage = SDL_GetError();
-        if (sdlErrorMessage && sdlErrorMessage[0])
-        {
-            SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s: %s", functionName,
-                         sdlErrorMessage);
-        }
-        else
-        {
-            SDL_snprintf(errorMsg, ErrorMessageSize, "SDL error calling %s", functionName);
-        }
-
-        SDL_Log("%s", errorMsg);
-        throw std::runtime_error{errorMsg};
-    }
-}
-
 struct SurfaceCreator
 {
     SurfaceCreator(SDL_Window *window) : m_window{window}

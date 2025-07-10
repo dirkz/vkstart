@@ -8,7 +8,9 @@ add_library(vkstart OBJECT
 	ValidationLayers.cpp
 	QueueFamilyIndices.h
 	QueueFamilyIndices.cpp
-	IWindow.h)
+	IWindow.h
+	SDL3Window.h
+	SDL3Window.cpp)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET vkstart PROPERTY CXX_STANDARD 20)
