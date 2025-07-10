@@ -9,6 +9,7 @@ struct IWindow
 {
     virtual vk::raii::SurfaceKHR CreateSurface(const vk::raii::Instance &instance) = 0;
     virtual void GetPixelDimensions(int *width, int *height) = 0;
+    virtual std::vector<std::string> RequiredInstanceExtensions() = 0;
 };
 
 } // namespace vkstart

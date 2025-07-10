@@ -37,6 +37,7 @@ struct SDL3Window : public IWindow
 
     vk::raii::SurfaceKHR CreateSurface(const vk::raii::Instance &instance) override;
     void GetPixelDimensions(int *width, int *height) override;
+    std::vector<std::string> RequiredInstanceExtensions() override;
 
   private:
     SDL_Window *m_window;

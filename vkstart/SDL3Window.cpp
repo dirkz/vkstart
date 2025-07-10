@@ -30,4 +30,21 @@ void SDL3Window::GetPixelDimensions(int *width, int *height)
     sdl::GetWindowSize(m_window, width, height);
 }
 
+std::vector<std::string> SDL3Window::RequiredInstanceExtensions()
+{
+    Uint32 numInstanceExtensions = 0;
+    const char *const *const instanceExtensions =
+        SDL_Vulkan_GetInstanceExtensions(&numInstanceExtensions);
+    HandleSDLError(instanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
+
+    std::vector<std::string> extensions{};
+
+    for (auto i = 0; i < numInstanceExtensions; ++i)
+    {
+        extensions.push_back(instanceExtensions[i]);
+    }
+
+    return extensions;
+}
+
 } // namespace vkstart
