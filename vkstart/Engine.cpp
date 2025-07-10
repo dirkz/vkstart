@@ -19,8 +19,10 @@ void Engine::DrawFrame()
     {
     }
 
+    const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentImage];
+
     auto [result, imageIndex] = m_swapchain.acquireNextImage(
-        std::numeric_limits<uint64_t>::max(), m_presentCompleteSemaphores[m_currentImage]);
+        std::numeric_limits<uint64_t>::max(), waitSemaphore);
 
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
@@ -28,7 +30,6 @@ void Engine::DrawFrame()
 
     RecordCommandBuffer(imageIndex);
 
-    const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentImage];
     const vk::PipelineStageFlags waitDestinationStageMask{
         vk::PipelineStageFlagBits::eColorAttachmentOutput};
     const vk::CommandBuffer commandBuffer = m_commandBuffers[m_currentFrame];
