@@ -77,7 +77,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     sdl::SetAppMetadata("Vulkan Hpp SDL", "1.0", "com.dirkz.vulkan.sample");
     sdl::Init(SDL_INIT_VIDEO);
 
-    SDL_Window *window = sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN);
+    SDL_Window *window =
+        sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     Uint32 numSdlInstanceExtensions = 0;
     const char *const *const sdlInstanceExtensions =
