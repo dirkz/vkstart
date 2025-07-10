@@ -21,8 +21,8 @@ void Engine::DrawFrame()
 
     const vk::Semaphore waitSemaphore = m_presentCompleteSemaphores[m_currentImage];
 
-    auto [result, imageIndex] = m_swapchain.acquireNextImage(
-        std::numeric_limits<uint64_t>::max(), waitSemaphore);
+    auto [result, imageIndex] =
+        m_swapchain.acquireNextImage(std::numeric_limits<uint64_t>::max(), waitSemaphore);
 
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
@@ -38,7 +38,7 @@ void Engine::DrawFrame()
                                     signalSemaphore};
     m_graphicsQueue.submit(submitInfo, m_inFlightFences[m_currentFrame]);
 
-    const vk::Semaphore waitSemaphore2 = m_renderFinishedSemaphores[m_currentImage];
+    const vk::Semaphore waitSemaphore2 = signalSemaphore;
     const vk::PresentInfoKHR presentInfoKHR{waitSemaphore2, *m_swapchain, imageIndex};
     result = m_presentQueue.presentKHR(presentInfoKHR);
 
