@@ -7,7 +7,7 @@ using namespace vkstart;
 
 struct ApplicationState
 {
-    ApplicationState(SDL3Window *window, Engine &engine)
+    ApplicationState(SDL3IWindow *window, Engine &engine)
         : m_window{window}, m_engine{std::move(engine)}
     {
     }
@@ -26,7 +26,7 @@ struct ApplicationState
     }
 
   private:
-    SDL3Window *m_window;
+    SDL3IWindow *m_window;
     Engine m_engine;
 };
 
@@ -58,7 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_Window *sdlWindow =
         sdl::CreateWindow("Vulkan Hpp SDL", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
-    SDL3Window *window = new SDL3Window{sdlWindow};
+    SDL3IWindow *window = new SDL3IWindow{sdlWindow};
 
     SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
     HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");

@@ -30,12 +30,12 @@ inline void HandleSDLError(bool errorCheck, const char *functionName)
     }
 }
 
-struct SDL3Window : public IWindow
+struct SDL3IWindow : public IWindow
 {
-    SDL3Window(SDL_Window *window);
-    SDL3Window(SDL3Window &&other) noexcept;
+    SDL3IWindow(SDL_Window *window);
+    SDL3IWindow(SDL3IWindow &&other) noexcept;
 
-    ~SDL3Window();
+    ~SDL3IWindow();
 
     vk::raii::SurfaceKHR CreateSurface(const vk::raii::Instance &instance) override;
     void GetPixelDimensions(int *width, int *height) override;

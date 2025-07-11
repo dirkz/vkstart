@@ -1,19 +1,19 @@
-#include "SDL3Window.h"
+#include "SDL3IWindow.h"
 
 namespace vkstart
 {
 
-SDL3Window::SDL3Window(SDL_Window *window) : m_window{window}
+SDL3IWindow::SDL3IWindow(SDL_Window *window) : m_window{window}
 {
 }
 
-SDL3Window::SDL3Window(SDL3Window &&other) noexcept
+SDL3IWindow::SDL3IWindow(SDL3IWindow &&other) noexcept
 {
     m_window = other.m_window;
     other.m_window = nullptr;
 }
 
-SDL3Window::~SDL3Window()
+SDL3IWindow::~SDL3IWindow()
 {
     if (m_window)
     {
@@ -21,7 +21,7 @@ SDL3Window::~SDL3Window()
     }
 }
 
-vk::raii::SurfaceKHR SDL3Window::CreateSurface(const vk::raii::Instance &instance)
+vk::raii::SurfaceKHR SDL3IWindow::CreateSurface(const vk::raii::Instance &instance)
 {
     VkSurfaceKHR surface = nullptr;
 
@@ -31,12 +31,12 @@ vk::raii::SurfaceKHR SDL3Window::CreateSurface(const vk::raii::Instance &instanc
     return vk::raii::SurfaceKHR{instance, surface};
 }
 
-void SDL3Window::GetPixelDimensions(int *width, int *height)
+void SDL3IWindow::GetPixelDimensions(int *width, int *height)
 {
     sdl::GetWindowSize(m_window, width, height);
 }
 
-std::vector<std::string> SDL3Window::RequiredInstanceExtensions()
+std::vector<std::string> SDL3IWindow::RequiredInstanceExtensions()
 {
     Uint32 numInstanceExtensions = 0;
     const char *const *const instanceExtensions =
