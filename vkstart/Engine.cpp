@@ -11,14 +11,14 @@ const std::unordered_set<std::string> RequiredDeviceExtensions{
     vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
     vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
 
-Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *iwindow)
+Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
 
-    : m_context{vkGetInstanceProcAddr}, m_iwindow{iwindow}
+    : m_context{vkGetInstanceProcAddr}, m_window{window}
 {
     CreateInstance();
     SetupDebugMessenger();
 
-    m_surface = iwindow->CreateSurface(m_instance);
+    m_surface = window->CreateSurface(m_instance);
 
     PickPhysicalDevice();
     CreateDevice();
@@ -27,7 +27,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *iwindow
     m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
 
     int pixelWidth, pixelHeight;
-    iwindow->GetPixelDimensions(&pixelWidth, &pixelHeight);
+    window->GetPixelDimensions(&pixelWidth, &pixelHeight);
     CreateSwapChain(pixelWidth, pixelHeight);
 
     CreateImageViews();
@@ -86,7 +86,7 @@ void Engine::DrawFrame()
 void Engine::CreateInstance()
 {
     std::vector<std::string> windowInstanceExtensionStrings =
-        m_iwindow->RequiredInstanceExtensions();
+        m_window->RequiredInstanceExtensions();
     std::vector<const char *> windowInstanceExtensions;
     for (const std::string &extension : windowInstanceExtensionStrings)
     {

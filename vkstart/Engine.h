@@ -34,7 +34,7 @@ struct Engine
     void CreateSyncObjects();
 
     vk::raii::Context m_context;
-    IWindow *m_iwindow;
+    IWindow *m_window;
     vk::raii::Instance m_instance = nullptr;
 
     std::unique_ptr<DebugMessenger> m_debugMessenger = nullptr;
