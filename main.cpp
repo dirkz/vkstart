@@ -5,13 +5,14 @@
 
 using namespace vkstart;
 
-struct Application
+struct ApplicationState
 {
-    Application(SDL3Window *window, Engine &engine) : m_window{window}, m_engine{std::move(engine)}
+    ApplicationState(SDL3Window *window, Engine &engine)
+        : m_window{window}, m_engine{std::move(engine)}
     {
     }
 
-    ~Application()
+    ~ApplicationState()
     {
         if (m_window)
         {
@@ -69,8 +70,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     Engine engine = Engine{vkGetInstanceProcAddr, window};
 
-    Application *appData = new Application{window, engine};
-    *appstate = appData;
+    ApplicationState *appState = new ApplicationState{window, engine};
+    *appstate = appState;
 
     return SDL_APP_CONTINUE;
 }
@@ -86,7 +87,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    Application *appData = reinterpret_cast<Application *>(appstate);
+    ApplicationState *appData = reinterpret_cast<ApplicationState *>(appstate);
 
     appData->GetEngine().DrawFrame();
 
@@ -95,6 +96,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    Application *appData = reinterpret_cast<Application *>(appstate);
+    ApplicationState *appData = reinterpret_cast<ApplicationState *>(appstate);
     free(appData);
 }
