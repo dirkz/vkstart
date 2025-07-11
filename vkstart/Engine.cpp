@@ -26,9 +26,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     m_graphicsQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.GraphicsIndex(), 0};
     m_presentQueue = vk::raii::Queue{m_device, m_queueFamilyIndices.PresentIndex(), 0};
 
-    int pixelWidth, pixelHeight;
-    window->GetPixelDimensions(&pixelWidth, &pixelHeight);
-    CreateSwapChain(pixelWidth, pixelHeight);
+    CreateSwapChain();
 
     CreateImageViews();
     CreateGraphicsPipeline();
@@ -251,8 +249,11 @@ static vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilit
                                  capabilities.maxImageExtent.height)};
 }
 
-void Engine::CreateSwapChain(int pixelWidth, int pixelHeight)
+void Engine::CreateSwapChain()
 {
+    int pixelWidth, pixelHeight;
+    m_window->GetPixelDimensions(&pixelWidth, &pixelHeight);
+
     vk::SurfaceCapabilitiesKHR surfaceCapabilities =
         m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface);
 

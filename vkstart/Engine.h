@@ -20,7 +20,7 @@ struct Engine
     void SetupDebugMessenger();
     void PickPhysicalDevice();
     void CreateDevice();
-    void CreateSwapChain(int pixelWidth, int pixelHeight);
+    void CreateSwapChain();
     void CreateImageViews();
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
