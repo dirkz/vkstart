@@ -11,12 +11,11 @@ const std::unordered_set<std::string> RequiredDeviceExtensions{
     vk::KHRSwapchainExtensionName, vk::KHRSpirv14ExtensionName,
     vk::KHRSynchronization2ExtensionName, vk::KHRCreateRenderpass2ExtensionName};
 
-Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-               std::span<const char *> windowInstanceExtensions, IWindow *window)
+Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
 
-    : m_context{vkGetInstanceProcAddr}
+    : m_context{vkGetInstanceProcAddr}, m_window{window}
 {
-    CreateInstance(windowInstanceExtensions);
+    CreateInstance();
     SetupDebugMessenger();
 
     m_surface = window->CreateSurface(m_instance);
@@ -84,8 +83,16 @@ void Engine::DrawFrame()
     m_currentImage = (m_currentImage + 1) % m_swapchainImages.size();
 }
 
-void Engine::CreateInstance(std::span<const char *> windowInstanceExtensions)
+void Engine::CreateInstance()
 {
+    std::vector<std::string> windowInstanceExtensionStrings =
+        m_window->RequiredInstanceExtensions();
+    std::vector<const char *> windowInstanceExtensions;
+    for (const std::string &extension : windowInstanceExtensionStrings)
+    {
+        windowInstanceExtensions.push_back(extension.c_str());
+    }
+
     bool validationLayersSupported = ValidationLayers::CheckSupport(m_context);
     if (!validationLayersSupported)
     {

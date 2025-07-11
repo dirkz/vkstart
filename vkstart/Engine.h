@@ -11,13 +11,12 @@ namespace vkstart
 
 struct Engine
 {
-    Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr,
-           std::span<const char *> windowInstanceExtensions, IWindow *window);
+    Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window);
 
     void DrawFrame();
 
   private:
-    void CreateInstance(std::span<const char *> windowInstanceExtensions);
+    void CreateInstance();
     void SetupDebugMessenger();
     void PickPhysicalDevice();
     void CreateDevice();
@@ -35,6 +34,7 @@ struct Engine
     void CreateSyncObjects();
 
     vk::raii::Context m_context;
+    IWindow *m_window;
     vk::raii::Instance m_instance = nullptr;
 
     std::unique_ptr<DebugMessenger> m_debugMessenger = nullptr;

@@ -59,15 +59,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     SDL3Window *window = new SDL3Window{sdlWindow};
 
-    Uint32 numSdlInstanceExtensions = 0;
-    const char *const *const sdlInstanceExtensions =
-        SDL_Vulkan_GetInstanceExtensions(&numSdlInstanceExtensions);
-    HandleSDLError(sdlInstanceExtensions == nullptr, "SDL_Vulkan_GetInstanceExtensions");
-
-    std::vector<const char *> instanceExtensions(numSdlInstanceExtensions);
-    instanceExtensions.assign(sdlInstanceExtensions,
-                              sdlInstanceExtensions + numSdlInstanceExtensions);
-
     SDL_FunctionPointer sdlProcAddr = SDL_Vulkan_GetVkGetInstanceProcAddr();
     HandleSDLError(sdlProcAddr == nullptr, "SDL_Vulkan_GetVkGetInstanceProcAddr");
 
@@ -79,7 +70,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     int pixelWidth, pixelHeight;
     sdl::GetWindowSize(sdlWindow, &pixelWidth, &pixelHeight);
 
-    Engine engine = Engine{vkGetInstanceProcAddr, std::span{instanceExtensions}, window};
+    Engine engine = Engine{vkGetInstanceProcAddr, window};
 
     Application *appData = new Application{window, engine};
     *appstate = appData;
