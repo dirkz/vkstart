@@ -315,6 +315,21 @@ void Engine::CreateSwapChain()
     m_swapchain = vk::raii::SwapchainKHR{m_device, swapChainCreateInfo};
     m_swapchainImages = m_swapchain.getImages();
 }
+void Engine::CleanupSwapChain()
+{
+    m_swapchainImageViews.clear();
+    m_swapchain = nullptr;
+}
+
+void Engine::ReCreateSwapChain()
+{
+    m_device.waitIdle();
+
+    CleanupSwapChain();
+
+    CreateSwapChain();
+    CreateImageViews();
+}
 
 void Engine::CreateImageViews()
 {

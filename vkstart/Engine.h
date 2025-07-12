@@ -21,6 +21,8 @@ struct Engine
     void PickPhysicalDevice();
     void CreateDevice();
     void CreateSwapChain();
+    void CleanupSwapChain();
+    void ReCreateSwapChain();
     void CreateImageViews();
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
