@@ -48,6 +48,16 @@ void Engine::DrawFrame()
     auto [result, imageIndex] =
         m_swapchain.acquireNextImage(std::numeric_limits<uint64_t>::max(), waitSemaphore);
 
+    if (result == vk::Result::eErrorOutOfDateKHR)
+    {
+        ReCreateSwapChain();
+        return;
+    }
+    if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+    {
+        throw std::runtime_error("failed to acquire swap chain image");
+    }
+
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
     m_commandBuffers[m_currentFrame].reset();
