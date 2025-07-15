@@ -81,7 +81,8 @@ void Engine::DrawFrame()
     case vk::Result::eSuccess:
         break;
     case vk::Result::eSuboptimalKHR:
-        SDL_Log("vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR!");
+    case vk::Result::eErrorOutOfDateKHR:
+        ReCreateSwapChain();
         break;
     default:
         break; // an unexpected result is returned!
