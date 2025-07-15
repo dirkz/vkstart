@@ -76,20 +76,22 @@ void Engine::DrawFrame()
     const vk::PresentInfoKHR presentInfoKHR{waitSemaphore2, *m_swapchain, imageIndex};
     result = m_presentQueue.presentKHR(presentInfoKHR);
 
-    switch (result)
+    if (result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR || m_pixelSizeChanged)
     {
-    case vk::Result::eSuccess:
-        break;
-    case vk::Result::eSuboptimalKHR:
-    case vk::Result::eErrorOutOfDateKHR:
+        m_pixelSizeChanged = false;
         ReCreateSwapChain();
-        break;
-    default:
-        break; // an unexpected result is returned!
+    }
+    else if (result != vk::Result::eSuccess)
+    {
+        throw std::runtime_error{"presentKHR failed"};
     }
 
     m_currentFrame = (m_currentFrame + 1) % MaxFramesInFlight;
     m_currentImage = (m_currentImage + 1) % m_swapchainImages.size();
+}
+void Engine::PixelSizeChanged()
+{
+    m_pixelSizeChanged = true;
 }
 
 void Engine::CreateInstance()

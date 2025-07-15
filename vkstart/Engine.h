@@ -14,6 +14,7 @@ struct Engine
     Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window);
 
     void DrawFrame();
+    void PixelSizeChanged();
 
   private:
     void CreateInstance();
@@ -69,6 +70,8 @@ struct Engine
 
     vk::raii::Queue m_graphicsQueue = nullptr;
     vk::raii::Queue m_presentQueue = nullptr;
+
+    bool m_pixelSizeChanged = false;
 };
 
 } // namespace vkstart

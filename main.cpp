@@ -30,6 +30,12 @@ struct ApplicationState
     Engine m_engine;
 };
 
+static ApplicationState *GetApplicationState(void *appstate)
+{
+    ApplicationState *appData = reinterpret_cast<ApplicationState *>(appstate);
+    return appData;
+}
+
 struct SurfaceCreator
 {
     SurfaceCreator(SDL_Window *window) : m_window{window}
@@ -78,16 +84,25 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    if (event->type == SDL_EVENT_QUIT)
+    switch (event->type)
     {
+    case SDL_EVENT_QUIT:
         return SDL_APP_SUCCESS;
+    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
+        ApplicationState *appData = GetApplicationState(appstate);
+        Sint32 width = event->display.data1;
+        Sint32 height = event->display.data2;
+        appData->GetEngine().PixelSizeChanged();
     }
-    return SDL_APP_CONTINUE;
+        return SDL_APP_CONTINUE;
+    default:
+        return SDL_APP_CONTINUE;
+    }
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    ApplicationState *appData = reinterpret_cast<ApplicationState *>(appstate);
+    ApplicationState *appData = GetApplicationState(appstate);
 
     appData->GetEngine().DrawFrame();
 
