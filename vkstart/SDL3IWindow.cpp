@@ -33,7 +33,7 @@ vk::raii::SurfaceKHR SDL3IWindow::CreateSurface(const vk::raii::Instance &instan
 
 void SDL3IWindow::GetPixelDimensions(int *width, int *height)
 {
-    sdl::GetWindowSize(m_window, width, height);
+    sdl::GetWindowSizeInPixels(m_window, width, height);
 }
 
 std::vector<std::string> SDL3IWindow::RequiredInstanceExtensions()
