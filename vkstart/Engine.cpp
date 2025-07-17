@@ -89,7 +89,8 @@ void Engine::DrawFrame()
     m_currentFrame = (m_currentFrame + 1) % MaxFramesInFlight;
     m_currentImage = (m_currentImage + 1) % m_swapchainImages.size();
 }
-void Engine::PixelSizeChanged()
+
+void Engine::PixelSizeChanged()
 {
     m_pixelSizeChanged = true;
 }
