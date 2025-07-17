@@ -94,6 +94,10 @@ void Engine::PixelSizeChanged()
 {
     m_pixelSizeChanged = true;
 }
+void Engine::WaitIdle()
+{
+    m_device.waitIdle();
+}
 
 void Engine::CreateInstance()
 {

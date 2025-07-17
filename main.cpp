@@ -112,5 +112,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     ApplicationState *appData = reinterpret_cast<ApplicationState *>(appstate);
+    appData->GetEngine().WaitIdle();
     free(appData);
 }

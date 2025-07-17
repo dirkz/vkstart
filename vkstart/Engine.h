@@ -15,6 +15,7 @@ struct Engine
 
     void DrawFrame();
     void PixelSizeChanged();
+    void WaitIdle();
 
   private:
     void CreateInstance();
