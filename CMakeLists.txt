@@ -28,6 +28,7 @@ find_package(Vulkan)
 
 option(SDL_STATIC "Build SDL as a static library" ON)
 
+add_subdirectory(glm)
 add_subdirectory(SDL-Hpp)
 add_subdirectory(vkstart)
 add_subdirectory(shaders)
