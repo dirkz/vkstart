@@ -1,9 +1,14 @@
 #include "Engine.h"
 
 #include "ValidationLayers.h"
+#include "Vertex.h"
 
 namespace vkstart
 {
+
+const std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                      {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                      {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
 constexpr uint32_t MaxFramesInFlight = 2;
 
@@ -76,7 +81,8 @@ void Engine::DrawFrame()
     const vk::PresentInfoKHR presentInfoKHR{waitSemaphore2, *m_swapchain, imageIndex};
     result = m_presentQueue.presentKHR(presentInfoKHR);
 
-    if (result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR || m_pixelSizeChanged)
+    if (result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR ||
+        m_pixelSizeChanged)
     {
         m_pixelSizeChanged = false;
         ReCreateSwapChain();

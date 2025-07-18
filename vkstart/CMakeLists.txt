@@ -10,7 +10,9 @@ add_library(vkstart OBJECT
 	QueueFamilyIndices.cpp
 	IWindow.h
 	SDL3IWindow.h
-	SDL3IWindow.cpp)
+	SDL3IWindow.cpp
+	Vertex.h
+	Vertex.cpp)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET vkstart PROPERTY CXX_STANDARD 20)
