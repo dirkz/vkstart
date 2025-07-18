@@ -437,7 +437,10 @@ void Engine::CreateGraphicsPipeline()
     std::vector dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
     vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo{{}, dynamicStates};
 
-    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
+    vk::VertexInputBindingDescription bindingDescription = Vertex::GetBindingDescription();
+    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{
+        {}, {bindingDescription}, attributeDescriptions};
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{
         {}, vk::PrimitiveTopology::eTriangleList};
