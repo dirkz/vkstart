@@ -29,6 +29,7 @@ struct Engine
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
     void CreateCommandPool();
+    void CreateVertexBuffer();
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
                                vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,

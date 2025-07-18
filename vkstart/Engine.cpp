@@ -6,7 +6,7 @@
 namespace vkstart
 {
 
-const std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+const std::vector<Vertex> Vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                       {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                       {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
@@ -36,6 +36,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateImageViews();
     CreateGraphicsPipeline();
     CreateCommandPool();
+    CreateVertexBuffer();
     CreateCommandBuffer();
     CreateSyncObjects();
 }
@@ -527,6 +528,14 @@ void Engine::CreateCommandPool()
     vk::CommandPoolCreateInfo poolCreateInfo{vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                                              m_queueFamilyIndices.GraphicsIndex()};
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
+}
+
+void Engine::CreateVertexBuffer()
+{
+    const vk::DeviceSize size = sizeof(Vertices[0]) * Vertices.size();
+    const auto bufferUsage = vk::BufferUsageFlagBits::eVertexBuffer;
+    const auto sharingMode = vk::SharingMode::eExclusive;
+    vk::BufferCreateInfo bufferCreateInfo{{}, size, bufferUsage, sharingMode};
 }
 
 void Engine::CreateCommandBuffer()
