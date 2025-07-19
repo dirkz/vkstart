@@ -557,7 +557,7 @@ void Engine::CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer
     commandCopyBuffer.copyBuffer(srcBuffer, dstBuffer, vk::BufferCopy{0, 0, size});
     commandCopyBuffer.end();
 
-    vk::SubmitInfo submitInfo{{}, {}, commandCopyBuffer, {}};
+    vk::SubmitInfo submitInfo{{}, {}, *commandCopyBuffer, {}};
     m_graphicsQueue.submit(submitInfo, {});
     m_graphicsQueue.waitIdle();
 }
