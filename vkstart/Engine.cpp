@@ -545,6 +545,23 @@ uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags pro
     throw std::runtime_error("no suitable memory type found");
 }
 
+void Engine::CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer,
+                        vk::DeviceSize size)
+{
+    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
+    vk::raii::CommandBuffer commandCopyBuffer =
+        std::move(m_device.allocateCommandBuffers(allocInfo).front());
+
+    commandCopyBuffer.begin(
+        vk::CommandBufferBeginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    commandCopyBuffer.copyBuffer(srcBuffer, dstBuffer, vk::BufferCopy{0, 0, size});
+    commandCopyBuffer.end();
+
+    vk::SubmitInfo submitInfo{{}, {}, commandCopyBuffer, {}};
+    m_graphicsQueue.submit(submitInfo, {});
+    m_graphicsQueue.waitIdle();
+}
+
 void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
                           vk::MemoryPropertyFlags properties, vk::raii::Buffer &buffer,
                           vk::raii::DeviceMemory &bufferMemory)
@@ -560,16 +577,41 @@ void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
 
 void Engine::CreateVertexBuffer()
 {
-    const vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
-    const auto bufferUsage = vk::BufferUsageFlagBits::eVertexBuffer;
-    CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eVertexBuffer,
-                 vk::MemoryPropertyFlagBits::eHostVisible |
-                     vk::MemoryPropertyFlagBits::eHostCoherent,
-                 m_vertexBuffer, m_vertexBufferMemory);
+    vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
 
-    void *data = m_vertexBufferMemory.mapMemory(0, bufferSize);
-    memcpy(data, Vertices.data(), bufferSize);
-    m_vertexBufferMemory.unmapMemory();
+    vk::BufferCreateInfo stagingCreateInfo{
+        {}, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive};
+    vk::raii::Buffer stagingBuffer(m_device, stagingCreateInfo);
+
+    vk::MemoryRequirements memRequirementsStaging = stagingBuffer.getMemoryRequirements();
+    const uint32_t stagingMemoryType = FindMemoryType(
+        memRequirementsStaging.memoryTypeBits,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    vk::MemoryAllocateInfo memoryAllocateInfoStaging{memRequirementsStaging.size,
+                                                     stagingMemoryType};
+    vk::raii::DeviceMemory stagingBufferMemory{m_device, memoryAllocateInfoStaging};
+    stagingBuffer.bindMemory(stagingBufferMemory, 0);
+
+    void *dataStaging = stagingBufferMemory.mapMemory(0, stagingCreateInfo.size);
+    memcpy(dataStaging, Vertices.data(), stagingCreateInfo.size);
+    stagingBufferMemory.unmapMemory();
+
+    vk::BufferCreateInfo bufferInfo{{},
+                                    bufferSize,
+                                    vk::BufferUsageFlagBits::eVertexBuffer |
+                                        vk::BufferUsageFlagBits::eTransferDst,
+                                    vk::SharingMode::eExclusive};
+    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
+
+    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
+    const uint32_t memoryType =
+        FindMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    vk::MemoryAllocateInfo memoryAllocateInfo{memRequirements.size, memoryType};
+    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
+
+    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+
+    CopyBuffer(stagingBuffer, m_vertexBuffer, stagingCreateInfo.size);
 }
 
 void Engine::CreateCommandBuffer()
