@@ -30,6 +30,9 @@ struct Engine
     void CreateGraphicsPipeline();
     void CreateCommandPool();
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+    void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
+                      vk::MemoryPropertyFlags properties, vk::raii::Buffer &buffer,
+                      vk::raii::DeviceMemory &bufferMemory);
     void CreateVertexBuffer();
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,

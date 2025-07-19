@@ -545,6 +545,19 @@ uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags pro
     throw std::runtime_error("no suitable memory type found");
 }
 
+void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
+                          vk::MemoryPropertyFlags properties, vk::raii::Buffer &buffer,
+                          vk::raii::DeviceMemory &bufferMemory)
+{
+    vk::BufferCreateInfo bufferCreateInfo{{}, size, usage, vk::SharingMode::eExclusive};
+    buffer = vk::raii::Buffer(m_device, bufferCreateInfo);
+    vk::MemoryRequirements memRequirements = buffer.getMemoryRequirements();
+    uint32_t memoryType = FindMemoryType(memRequirements.memoryTypeBits, properties);
+    vk::MemoryAllocateInfo allocInfo{memRequirements.size, memoryType};
+    bufferMemory = vk::raii::DeviceMemory{m_device, allocInfo};
+    buffer.bindMemory(*bufferMemory, 0);
+}
+
 void Engine::CreateVertexBuffer()
 {
     const vk::DeviceSize size = sizeof(Vertices[0]) * Vertices.size();
