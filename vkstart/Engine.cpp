@@ -560,23 +560,15 @@ void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
 
 void Engine::CreateVertexBuffer()
 {
-    const vk::DeviceSize size = sizeof(Vertices[0]) * Vertices.size();
+    const vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
     const auto bufferUsage = vk::BufferUsageFlagBits::eVertexBuffer;
-    const auto sharingMode = vk::SharingMode::eExclusive;
-    vk::BufferCreateInfo bufferCreateInfo{{}, size, bufferUsage, sharingMode};
-    m_vertexBuffer = vk::raii::Buffer{m_device, bufferCreateInfo};
+    CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eVertexBuffer,
+                 vk::MemoryPropertyFlagBits::eHostVisible |
+                     vk::MemoryPropertyFlagBits::eHostCoherent,
+                 m_vertexBuffer, m_vertexBufferMemory);
 
-    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
-    uint32_t memoryType = FindMemoryType(memRequirements.memoryTypeBits,
-                                         vk::MemoryPropertyFlagBits::eHostVisible |
-                                             vk::MemoryPropertyFlagBits::eHostCoherent);
-    vk::MemoryAllocateInfo memoryAllocateInfo{memRequirements.size, memoryType};
-    m_vertexBufferMemory = vk::raii::DeviceMemory{m_device, memoryAllocateInfo};
-
-    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
-
-    void *data = m_vertexBufferMemory.mapMemory(0, bufferCreateInfo.size);
-    memcpy(data, Vertices.data(), bufferCreateInfo.size);
+    void *data = m_vertexBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, Vertices.data(), bufferSize);
     m_vertexBufferMemory.unmapMemory();
 }
 
@@ -661,7 +653,7 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
     m_commandBuffers[m_currentFrame].setScissor(0,
                                                 vk::Rect2D{vk::Offset2D{0, 0}, m_swapchainExtent});
 
-    const uint32_t vertexCount = Vertices.size();
+    const uint32_t vertexCount = static_cast<uint32_t>(Vertices.size());
     const uint32_t instanceCount = 1;
     const uint32_t firstVertex = 0;
     const uint32_t firstInstance = 0;
