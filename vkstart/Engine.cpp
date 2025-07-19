@@ -530,12 +530,41 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+{
+    vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) &&
+            (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("no suitable memory type found");
+}
+
 void Engine::CreateVertexBuffer()
 {
     const vk::DeviceSize size = sizeof(Vertices[0]) * Vertices.size();
     const auto bufferUsage = vk::BufferUsageFlagBits::eVertexBuffer;
     const auto sharingMode = vk::SharingMode::eExclusive;
     vk::BufferCreateInfo bufferCreateInfo{{}, size, bufferUsage, sharingMode};
+    m_vertexBuffer = vk::raii::Buffer{m_device, bufferCreateInfo};
+
+    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
+    uint32_t memoryType = FindMemoryType(memRequirements.memoryTypeBits,
+                                         vk::MemoryPropertyFlagBits::eHostVisible |
+                                             vk::MemoryPropertyFlagBits::eHostCoherent);
+    vk::MemoryAllocateInfo memoryAllocateInfo{memRequirements.size, memoryType};
+    m_vertexBufferMemory = vk::raii::DeviceMemory{m_device, memoryAllocateInfo};
+
+    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+
+    void *data = m_vertexBufferMemory.mapMemory(0, bufferCreateInfo.size);
+    memcpy(data, Vertices.data(), bufferCreateInfo.size);
+    m_vertexBufferMemory.unmapMemory();
 }
 
 void Engine::CreateCommandBuffer()
@@ -611,13 +640,15 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
     m_commandBuffers[m_currentFrame].bindPipeline(vk::PipelineBindPoint::eGraphics,
                                                   m_graphicsPipeline);
 
+    m_commandBuffers[m_currentFrame].bindVertexBuffers(0, {m_vertexBuffer}, {0});
+
     m_commandBuffers[m_currentFrame].setViewport(
         0, vk::Viewport{0.0f, 0.0f, static_cast<float>(m_swapchainExtent.width),
                         static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f});
     m_commandBuffers[m_currentFrame].setScissor(0,
                                                 vk::Rect2D{vk::Offset2D{0, 0}, m_swapchainExtent});
 
-    const uint32_t vertexCount = 3;
+    const uint32_t vertexCount = Vertices.size();
     const uint32_t instanceCount = 1;
     const uint32_t firstVertex = 0;
     const uint32_t firstInstance = 0;

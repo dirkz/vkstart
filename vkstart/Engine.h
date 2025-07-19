@@ -29,6 +29,7 @@ struct Engine
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
     void CreateCommandPool();
+    uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     void CreateVertexBuffer();
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
@@ -61,6 +62,10 @@ struct Engine
     vk::raii::Pipeline m_graphicsPipeline = nullptr;
 
     vk::raii::CommandPool m_commandPool = nullptr;
+
+    vk::raii::Buffer m_vertexBuffer = nullptr;
+    vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
+
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 
     std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
