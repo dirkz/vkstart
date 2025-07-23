@@ -49,6 +49,8 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
+    CreateDescriptorPool();
+    CreateDescriptorSets();
     CreateCommandBuffer();
     CreateSyncObjects();
 }
@@ -663,6 +665,40 @@ void Engine::CreateUniformBuffers()
     }
 }
 
+void Engine::CreateDescriptorPool()
+{
+    vk::DescriptorPoolSize poolSize{vk::DescriptorType::eUniformBuffer, MaxFramesInFlight};
+    vk::DescriptorPoolCreateInfo poolInfo{
+        vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, MaxFramesInFlight, {poolSize}};
+    m_descriptorPool = vk::raii::DescriptorPool{m_device, poolInfo};
+}
+
+void Engine::CreateDescriptorSets()
+{
+    std::vector<vk::DescriptorSetLayout> layouts{MaxFramesInFlight, *m_descriptorSetLayout};
+    vk::DescriptorSetAllocateInfo allocInfo{m_descriptorPool, layouts};
+    m_descriptorSets.clear();
+    m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
+    for (size_t i = 0; i < MaxFramesInFlight; i++)
+    {
+        const uint32_t offset = 0;
+        vk::DescriptorBufferInfo bufferInfo{m_uniformBuffers[i], offset,
+                                            sizeof(UniformBufferObject)};
+
+        const uint32_t dstBinding = 0;
+        const uint32_t dstArrayElement = 0;
+        vk::WriteDescriptorSet descriptorWrite{m_descriptorSets[i],
+                                               dstBinding,
+                                               dstArrayElement,
+                                               vk::DescriptorType::eUniformBuffer,
+                                               {},
+                                               bufferInfo,
+                                               {}};
+
+        m_device.updateDescriptorSets(descriptorWrite, {});
+    }
+}
+
 void Engine::CreateCommandBuffer()
 {
     const uint32_t commandBufferCount = MaxFramesInFlight;
@@ -744,6 +780,10 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                         static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f});
     m_commandBuffers[m_currentFrame].setScissor(0,
                                                 vk::Rect2D{vk::Offset2D{0, 0}, m_swapchainExtent});
+
+    m_commandBuffers[m_currentFrame].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                                        m_pipelineLayout, 0,
+                                                        {m_descriptorSets[m_currentFrame]}, {});
 
     const uint32_t indexCount = static_cast<uint32_t>(Indices.size());
     const uint32_t instanceCount = 1;

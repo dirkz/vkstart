@@ -41,6 +41,8 @@ struct Engine
     void CreateIndexBuffer();
 
     void CreateUniformBuffers();
+    void CreateDescriptorPool();
+    void CreateDescriptorSets();
 
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
@@ -74,6 +76,9 @@ struct Engine
     vk::raii::DescriptorSetLayout m_descriptorSetLayout = nullptr;
     vk::raii::PipelineLayout m_pipelineLayout = nullptr;
     vk::raii::Pipeline m_graphicsPipeline = nullptr;
+
+    vk::raii::DescriptorPool m_descriptorPool = nullptr;
+    std::vector<vk::raii::DescriptorSet> m_descriptorSets;
 
     vk::raii::CommandPool m_commandPool = nullptr;
 
