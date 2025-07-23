@@ -437,6 +437,8 @@ void Engine::CreateDescriptorSetLayout()
     const uint32_t binding = 0;
     vk::DescriptorSetLayoutBinding uboLayoutBinding{
         binding, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, {}};
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{{}, uboLayoutBinding};
+    m_descriptorSetLayout = vk::raii::DescriptorSetLayout{m_device, layoutInfo};
 }
 
 void Engine::CreateGraphicsPipeline()
@@ -512,7 +514,7 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
         {}, logicOpEnabled, logicOp, {colorBlendAttachment}};
 
-    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, {}, {}};
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, *m_descriptorSetLayout, {}};
     m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutInfo};
 
     const uint32_t viewMask = 0;
