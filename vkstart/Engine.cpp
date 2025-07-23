@@ -697,6 +697,7 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                                                   m_graphicsPipeline);
 
     m_commandBuffers[m_currentFrame].bindVertexBuffers(0, {m_vertexBuffer}, {0});
+    m_commandBuffers[m_currentFrame].bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
 
     m_commandBuffers[m_currentFrame].setViewport(
         0, vk::Viewport{0.0f, 0.0f, static_cast<float>(m_swapchainExtent.width),
@@ -704,11 +705,13 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
     m_commandBuffers[m_currentFrame].setScissor(0,
                                                 vk::Rect2D{vk::Offset2D{0, 0}, m_swapchainExtent});
 
-    const uint32_t vertexCount = static_cast<uint32_t>(Vertices.size());
+    const uint32_t indexCount = static_cast<uint32_t>(Indices.size());
     const uint32_t instanceCount = 1;
-    const uint32_t firstVertex = 0;
+    const uint32_t firstIndex = 0;
+    const uint32_t vertexOffset = 0;
     const uint32_t firstInstance = 0;
-    m_commandBuffers[m_currentFrame].draw(vertexCount, instanceCount, firstVertex, firstInstance);
+    m_commandBuffers[m_currentFrame].drawIndexed(indexCount, instanceCount, firstIndex,
+                                                 vertexOffset, firstInstance);
 
     m_commandBuffers[m_currentFrame].endRendering();
 
