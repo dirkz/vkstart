@@ -591,20 +591,12 @@ void Engine::CreateVertexBuffer()
     memcpy(dataStaging, Vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
 
-    vk::BufferCreateInfo bufferInfo{{},
-                                    bufferSize,
-                                    vk::BufferUsageFlagBits::eVertexBuffer |
-                                        vk::BufferUsageFlagBits::eTransferDst,
-                                    vk::SharingMode::eExclusive};
-    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
-
-    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
-    const uint32_t memoryType =
-        FindMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    vk::MemoryAllocateInfo memoryAllocateInfo{memRequirements.size, memoryType};
-    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memoryAllocateInfo);
-
-    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+    const vk::BufferUsageFlags bufferUsageFlags{vk::BufferUsageFlagBits::eVertexBuffer |
+                                                vk::BufferUsageFlagBits::eTransferDst};
+    const vk::MemoryPropertyFlags bufferMemoryPropertyFlags{
+        vk::MemoryPropertyFlagBits::eDeviceLocal};
+    CreateBuffer(bufferSize, bufferUsageFlags, bufferMemoryPropertyFlags, m_vertexBuffer,
+                 m_vertexBufferMemory);
 
     CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
 }
