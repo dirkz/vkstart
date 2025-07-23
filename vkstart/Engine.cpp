@@ -48,6 +48,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateCommandPool();
     CreateVertexBuffer();
     CreateIndexBuffer();
+    CreateUniformBuffers();
     CreateCommandBuffer();
     CreateSyncObjects();
 }
@@ -639,6 +640,27 @@ void Engine::CreateIndexBuffer()
                  vk::MemoryPropertyFlagBits::eDeviceLocal, m_indexBuffer, m_indexBufferMemory);
 
     CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+}
+
+void Engine::CreateUniformBuffers()
+{
+    m_uniformBuffers.clear();
+    m_uniformBuffersMemory.clear();
+    m_uniformBuffersMapped.clear();
+
+    for (size_t i = 0; i < MaxFramesInFlight; i++)
+    {
+        vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
+        vk::raii::Buffer buffer = nullptr;
+        vk::raii::DeviceMemory bufferMem = nullptr;
+        CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
+                     vk::MemoryPropertyFlagBits::eHostVisible |
+                         vk::MemoryPropertyFlagBits::eHostCoherent,
+                     buffer, bufferMem);
+        m_uniformBuffers.emplace_back(std::move(buffer));
+        m_uniformBuffersMemory.emplace_back(std::move(bufferMem));
+        m_uniformBuffersMapped.emplace_back(m_uniformBuffersMemory[i].mapMemory(0, bufferSize));
+    }
 }
 
 void Engine::CreateCommandBuffer()

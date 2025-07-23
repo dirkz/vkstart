@@ -40,6 +40,8 @@ struct Engine
     void CreateVertexBuffer();
     void CreateIndexBuffer();
 
+    void CreateUniformBuffers();
+
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
                                vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
@@ -79,6 +81,10 @@ struct Engine
     vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
     vk::raii::Buffer m_indexBuffer = nullptr;
     vk::raii::DeviceMemory m_indexBufferMemory = nullptr;
+
+    std::vector<vk::raii::Buffer> m_uniformBuffers;
+    std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
+    std::vector<void *> m_uniformBuffersMapped;
 
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 
