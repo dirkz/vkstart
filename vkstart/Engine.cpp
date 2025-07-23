@@ -5,6 +5,12 @@
 
 namespace vkstart
 {
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 const std::vector<Vertex> Vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                       {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -67,6 +73,8 @@ void Engine::DrawFrame()
     {
         throw std::runtime_error("failed to acquire swap chain image");
     }
+
+    UpdateUniformBuffer(m_currentFrame);
 
     m_device.resetFences({m_inFlightFences[m_currentFrame]});
 
@@ -744,6 +752,9 @@ void Engine::CreateSyncObjects()
         m_presentCompleteSemaphores.emplace_back(m_device, semaphoreCreateInfo);
         m_renderFinishedSemaphores.emplace_back(m_device, semaphoreCreateInfo);
     }
+}
+void Engine::UpdateUniformBuffer(uint32_t currentImage)
+{
 }
 
 } // namespace vkstart

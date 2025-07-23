@@ -47,6 +47,8 @@ struct Engine
     void RecordCommandBuffer(uint32_t imageIndex);
     void CreateSyncObjects();
 
+    void UpdateUniformBuffer(uint32_t currentImage);
+
     vk::raii::Context m_context;
     IWindow *m_window;
     vk::raii::Instance m_instance = nullptr;
