@@ -579,21 +579,16 @@ void Engine::CreateVertexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
 
-    vk::BufferCreateInfo stagingCreateInfo{
-        {}, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive};
-    vk::raii::Buffer stagingBuffer(m_device, stagingCreateInfo);
+    const vk::BufferUsageFlags stagingUsageFlags{vk::BufferUsageFlagBits::eTransferSrc};
+    const vk::MemoryPropertyFlags stagingMemoryPropertyFlags{
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
+    vk::raii::Buffer stagingBuffer = nullptr;
+    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
+    CreateBuffer(bufferSize, stagingUsageFlags, stagingMemoryPropertyFlags, stagingBuffer,
+                 stagingBufferMemory);
 
-    vk::MemoryRequirements memRequirementsStaging = stagingBuffer.getMemoryRequirements();
-    const uint32_t stagingMemoryType = FindMemoryType(
-        memRequirementsStaging.memoryTypeBits,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    vk::MemoryAllocateInfo memoryAllocateInfoStaging{memRequirementsStaging.size,
-                                                     stagingMemoryType};
-    vk::raii::DeviceMemory stagingBufferMemory{m_device, memoryAllocateInfoStaging};
-    stagingBuffer.bindMemory(stagingBufferMemory, 0);
-
-    void *dataStaging = stagingBufferMemory.mapMemory(0, stagingCreateInfo.size);
-    memcpy(dataStaging, Vertices.data(), stagingCreateInfo.size);
+    void *dataStaging = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(dataStaging, Vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
 
     vk::BufferCreateInfo bufferInfo{{},
@@ -611,7 +606,7 @@ void Engine::CreateVertexBuffer()
 
     m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
 
-    CopyBuffer(stagingBuffer, m_vertexBuffer, stagingCreateInfo.size);
+    CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
 }
 
 void Engine::CreateCommandBuffer()
