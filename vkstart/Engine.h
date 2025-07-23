@@ -27,6 +27,7 @@ struct Engine
     void ReCreateSwapChain();
     void CreateImageViews();
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
+    void CreateDescriptorSetLayout();
     void CreateGraphicsPipeline();
     void CreateCommandPool();
 

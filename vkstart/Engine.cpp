@@ -43,6 +43,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateSwapChain();
 
     CreateImageViews();
+    CreateDescriptorSetLayout();
     CreateGraphicsPipeline();
     CreateCommandPool();
     CreateVertexBuffer();
@@ -431,6 +432,13 @@ vk::raii::ShaderModule Engine::CreateShaderModule(const std::vector<char> &code)
     return shaderModule;
 }
 
+void Engine::CreateDescriptorSetLayout()
+{
+    const uint32_t binding = 0;
+    vk::DescriptorSetLayoutBinding uboLayoutBinding{
+        binding, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, {}};
+}
+
 void Engine::CreateGraphicsPipeline()
 {
     auto shaderCode = ReadFile(std::filesystem::path{"shaders"} / "shader.slang.spv");
@@ -753,7 +761,8 @@ void Engine::CreateSyncObjects()
         m_renderFinishedSemaphores.emplace_back(m_device, semaphoreCreateInfo);
     }
 }
-void Engine::UpdateUniformBuffer(uint32_t currentImage)
+
+void Engine::UpdateUniformBuffer(uint32_t currentImage)
 {
 }
 
