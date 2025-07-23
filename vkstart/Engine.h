@@ -29,12 +29,16 @@ struct Engine
     vk::raii::ShaderModule CreateShaderModule(const std::vector<char> &code) const;
     void CreateGraphicsPipeline();
     void CreateCommandPool();
+
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     void CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size);
     void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
                       vk::MemoryPropertyFlags properties, vk::raii::Buffer &buffer,
                       vk::raii::DeviceMemory &bufferMemory);
+
     void CreateVertexBuffer();
+    void CreateIndexBuffer();
+
     void CreateCommandBuffer();
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
                                vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
@@ -69,6 +73,8 @@ struct Engine
 
     vk::raii::Buffer m_vertexBuffer = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
+    vk::raii::Buffer m_indexBuffer = nullptr;
+    vk::raii::DeviceMemory m_indexBufferMemory = nullptr;
 
     std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 

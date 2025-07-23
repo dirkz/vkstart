@@ -6,9 +6,12 @@
 namespace vkstart
 {
 
-const std::vector<Vertex> Vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                      {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                                      {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+const std::vector<Vertex> Vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                      {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                      {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                      {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+
+const std::vector<uint16_t> Indices = {0, 1, 2, 2, 3, 0};
 
 constexpr uint32_t MaxFramesInFlight = 2;
 
@@ -37,6 +40,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateGraphicsPipeline();
     CreateCommandPool();
     CreateVertexBuffer();
+    CreateIndexBuffer();
     CreateCommandBuffer();
     CreateSyncObjects();
 }
@@ -579,26 +583,44 @@ void Engine::CreateVertexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
 
-    const vk::BufferUsageFlags stagingUsageFlags{vk::BufferUsageFlagBits::eTransferSrc};
-    const vk::MemoryPropertyFlags stagingMemoryPropertyFlags{
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
     vk::raii::Buffer stagingBuffer = nullptr;
     vk::raii::DeviceMemory stagingBufferMemory = nullptr;
-    CreateBuffer(bufferSize, stagingUsageFlags, stagingMemoryPropertyFlags, stagingBuffer,
-                 stagingBufferMemory);
+    CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+                 vk::MemoryPropertyFlagBits::eHostVisible |
+                     vk::MemoryPropertyFlagBits::eHostCoherent,
+                 stagingBuffer, stagingBufferMemory);
 
     void *dataStaging = stagingBufferMemory.mapMemory(0, bufferSize);
     memcpy(dataStaging, Vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
 
-    const vk::BufferUsageFlags bufferUsageFlags{vk::BufferUsageFlagBits::eVertexBuffer |
-                                                vk::BufferUsageFlagBits::eTransferDst};
-    const vk::MemoryPropertyFlags bufferMemoryPropertyFlags{
-        vk::MemoryPropertyFlagBits::eDeviceLocal};
-    CreateBuffer(bufferSize, bufferUsageFlags, bufferMemoryPropertyFlags, m_vertexBuffer,
-                 m_vertexBufferMemory);
+    CreateBuffer(bufferSize,
+                 vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+                 vk::MemoryPropertyFlagBits::eDeviceLocal, m_vertexBuffer, m_vertexBufferMemory);
 
     CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+}
+
+void Engine::CreateIndexBuffer()
+{
+    vk::DeviceSize bufferSize = sizeof(Indices[0]) * Indices.size();
+
+    vk::raii::Buffer stagingBuffer = nullptr;
+    vk::raii::DeviceMemory stagingBufferMemory = nullptr;
+    CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+                 vk::MemoryPropertyFlagBits::eHostVisible |
+                     vk::MemoryPropertyFlagBits::eHostCoherent,
+                 stagingBuffer, stagingBufferMemory);
+
+    void *data = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, Indices.data(), bufferSize);
+    stagingBufferMemory.unmapMemory();
+
+    CreateBuffer(bufferSize,
+                 vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+                 vk::MemoryPropertyFlagBits::eDeviceLocal, m_indexBuffer, m_indexBufferMemory);
+
+    CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
 }
 
 void Engine::CreateCommandBuffer()
