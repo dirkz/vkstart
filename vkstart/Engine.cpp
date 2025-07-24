@@ -491,7 +491,7 @@ void Engine::CreateGraphicsPipeline()
     const auto rasterizerDiscardEnable = vk::False;
     const auto polygonMode = vk::PolygonMode::eFill;
     const auto cullMode = vk::CullModeFlagBits::eBack;
-    const auto frontFace = vk::FrontFace::eClockwise;
+    const auto frontFace = vk::FrontFace::eCounterClockwise;
     const auto depthBiasEnable = vk::False;
     const float depthBiasSlopeFactor = 1.0f;
     const float lineWidth = 1.0f;
