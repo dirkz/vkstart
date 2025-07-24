@@ -440,6 +440,11 @@ void Engine::CreateDescriptorSetLayout()
     const uint32_t binding = 0;
     vk::DescriptorSetLayoutBinding uboLayoutBinding{
         binding, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, {}};
+
+    // This is weird. The above constructor bases this on the number of vk::Samplers,
+    // but why would a vk::DescriptorSetLayoutBinding need samplers?
+    uboLayoutBinding.descriptorCount = 1;
+
     vk::DescriptorSetLayoutCreateInfo layoutInfo{{}, uboLayoutBinding};
     m_descriptorSetLayout = vk::raii::DescriptorSetLayout{m_device, layoutInfo};
 }
