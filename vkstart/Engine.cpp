@@ -50,6 +50,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateDescriptorSetLayout();
     CreateGraphicsPipeline();
     CreateCommandPool();
+    CreateTextureImage();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
@@ -562,6 +563,22 @@ void Engine::CreateCommandPool()
     vk::CommandPoolCreateInfo poolCreateInfo{vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                                              m_queueFamilyIndices.GraphicsIndex()};
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
+}
+
+void Engine::CreateTextureImage()
+{
+    std::filesystem::path basePath{sdl::GetBasePath()};
+    std::filesystem::path filePath = basePath / "textures" / "texture.jpg";
+
+    int texWidth, texHeight, texChannels;
+    stbi_uc *pixels =
+        stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    vk::DeviceSize imageSize = static_cast<vk::DeviceSize>(texWidth) * texHeight * 4;
+
+    if (!pixels)
+    {
+        throw std::runtime_error("failed to load texture image");
+    }
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
