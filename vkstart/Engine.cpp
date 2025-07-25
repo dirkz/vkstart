@@ -565,6 +565,33 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
+                         vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
+                         vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory)
+{
+    const uint32_t miplevels = 1;
+    const uint32_t arrayLayers = 1;
+    vk::ImageCreateInfo imageInfo{{},
+                                  vk::ImageType::e2D,
+                                  format,
+                                  {width, height, 1},
+                                  miplevels,
+                                  arrayLayers,
+                                  vk::SampleCountFlagBits::e1,
+                                  tiling,
+                                  usage,
+                                  vk::SharingMode::eExclusive,
+                                  {}};
+
+    image = vk::raii::Image{m_device, imageInfo};
+
+    vk::MemoryRequirements memRequirements = image.getMemoryRequirements();
+    vk::MemoryAllocateInfo allocInfo{memRequirements.size,
+                                     FindMemoryType(memRequirements.memoryTypeBits, properties)};
+    imageMemory = vk::raii::DeviceMemory{m_device, allocInfo};
+    image.bindMemory(imageMemory, 0);
+}
+
 void Engine::CreateTextureImage()
 {
     std::filesystem::path basePath{sdl::GetBasePath()};
