@@ -8,6 +8,7 @@
 
 namespace vkstart
 {
+
 struct UniformBufferObject
 {
     glm::mat4 model;
