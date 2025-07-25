@@ -569,7 +569,7 @@ void Engine::CreateTextureImage()
 {
     std::filesystem::path basePath{sdl::GetBasePath()};
     std::filesystem::path filePath = basePath / "textures" / "texture.jpg";
-    std::string filePathString = basePath.string();
+    std::string filePathString = filePath.string();
 
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels =
