@@ -569,10 +569,11 @@ void Engine::CreateTextureImage()
 {
     std::filesystem::path basePath{sdl::GetBasePath()};
     std::filesystem::path filePath = basePath / "textures" / "texture.jpg";
+    std::string filePathString = basePath.string();
 
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels =
-        stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        stbi_load(filePathString.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     vk::DeviceSize imageSize = static_cast<vk::DeviceSize>(texWidth) * texHeight * 4;
 
     if (!pixels)
