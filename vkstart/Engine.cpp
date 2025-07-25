@@ -621,6 +621,12 @@ void Engine::CreateTextureImage()
     stagingBufferMemory.unmapMemory();
 
     stbi_image_free(pixels);
+
+    vk::raii::Image textureImageTemp = nullptr;
+    vk::raii::DeviceMemory textureImageMemoryTemp = nullptr;
+    CreateImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
+                vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+                vk::MemoryPropertyFlagBits::eDeviceLocal, textureImageTemp, textureImageMemoryTemp);
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
