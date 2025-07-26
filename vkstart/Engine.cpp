@@ -565,6 +565,29 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
+                                   vk::ImageLayout newLayout)
+{
+    vk::raii::CommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    vk::ImageSubresourceRange subResourceRange{vk::ImageAspectFlagBits::eColor, baseMipLevel,
+                                               levelCount, baseArrayLayer, layerCount};
+
+    const vk::AccessFlags srcAccessMask{};
+    const vk::AccessFlags dstAccessMask{};
+    const uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    const uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
+                                   srcQueueFamilyIndex, dstQueueFamilyIndex, image,
+                                   subResourceRange);
+
+    EndSingleTimeCommands(commandBuffer);
+}
+
 void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
                          vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
                          vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory)
@@ -628,27 +651,6 @@ void Engine::CreateTextureImage()
     CreateImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
                 vk::MemoryPropertyFlagBits::eDeviceLocal, textureImageTemp, textureImageMemoryTemp);
-}
-
-vk::raii::CommandBuffer Engine::BeginSingleTimeCommands()
-{
-    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
-    vk::raii::CommandBuffer commandBuffer =
-        std::move(m_device.allocateCommandBuffers(allocInfo).front());
-
-    vk::CommandBufferBeginInfo beginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit};
-    commandBuffer.begin(beginInfo);
-
-    return commandBuffer;
-}
-
-void Engine::EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer)
-{
-    commandBuffer.end();
-
-    vk::SubmitInfo submitInfo{{}, {}, *commandBuffer, {}};
-    m_graphicsQueue.submit(submitInfo, nullptr);
-    m_graphicsQueue.waitIdle();
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
@@ -792,6 +794,27 @@ void Engine::CreateCommandBuffer()
     vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary,
                                             commandBufferCount};
     m_commandBuffers = vk::raii::CommandBuffers{m_device, allocInfo};
+}
+
+vk::raii::CommandBuffer Engine::BeginSingleTimeCommands()
+{
+    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
+    vk::raii::CommandBuffer commandBuffer =
+        std::move(m_device.allocateCommandBuffers(allocInfo).front());
+
+    vk::CommandBufferBeginInfo beginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit};
+    commandBuffer.begin(beginInfo);
+
+    return commandBuffer;
+}
+
+void Engine::EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer)
+{
+    commandBuffer.end();
+
+    vk::SubmitInfo submitInfo{{}, {}, *commandBuffer, {}};
+    m_graphicsQueue.submit(submitInfo, nullptr);
+    m_graphicsQueue.waitIdle();
 }
 
 void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,

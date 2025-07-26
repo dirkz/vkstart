@@ -31,13 +31,15 @@ struct Engine
     void CreateGraphicsPipeline();
     void CreateCommandPool();
 
+    vk::raii::CommandBuffer BeginSingleTimeCommands();
+    void EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer);
+
+    void TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
+                               vk::ImageLayout newLayout);
     void CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
                      vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
                      vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
     void CreateTextureImage();
-
-    vk::raii::CommandBuffer BeginSingleTimeCommands();
-    void EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer);
 
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     void CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size);
