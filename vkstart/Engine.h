@@ -36,6 +36,8 @@ struct Engine
 
     void TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
                                vk::ImageLayout newLayout);
+    void CopyBufferToImage(const vk::raii::Buffer &buffer, vk::raii::Image &image, uint32_t width,
+                           uint32_t height);
     void CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
                      vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
                      vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);

@@ -586,6 +586,30 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
     EndSingleTimeCommands(commandBuffer);
 }
 
+void Engine::CopyBufferToImage(const vk::raii::Buffer &buffer, vk::raii::Image &image,
+                               uint32_t width, uint32_t height)
+{
+    vk::raii::CommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+    const uint32_t mipLevel = 0;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    vk::ImageSubresourceLayers subresourceLayers{vk::ImageAspectFlagBits::eColor, mipLevel,
+                                                 baseArrayLayer, layerCount};
+
+    const vk::DeviceSize bufferOffset = 0;
+    const uint32_t bufferRowLength = 0;
+    const uint32_t bufferImageHeight = 0;
+    const vk::Offset3D offset3D{0, 0, 0};
+    const vk::Extent3D extent3D{width, height, 1};
+    vk::BufferImageCopy region{bufferOffset,      bufferRowLength, bufferImageHeight,
+                               subresourceLayers, offset3D,        extent3D};
+
+    commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, {region});
+
+    EndSingleTimeCommands(commandBuffer);
+}
+
 void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
                          vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
                          vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory)
