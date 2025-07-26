@@ -630,6 +630,27 @@ void Engine::CreateTextureImage()
                 vk::MemoryPropertyFlagBits::eDeviceLocal, textureImageTemp, textureImageMemoryTemp);
 }
 
+vk::raii::CommandBuffer Engine::BeginSingleTimeCommands()
+{
+    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
+    vk::raii::CommandBuffer commandBuffer =
+        std::move(m_device.allocateCommandBuffers(allocInfo).front());
+
+    vk::CommandBufferBeginInfo beginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit};
+    commandBuffer.begin(beginInfo);
+
+    return commandBuffer;
+}
+
+void Engine::EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer)
+{
+    commandBuffer.end();
+
+    vk::SubmitInfo submitInfo{{}, {}, *commandBuffer, {}};
+    m_graphicsQueue.submit(submitInfo, nullptr);
+    m_graphicsQueue.waitIdle();
+}
+
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
     vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
@@ -648,18 +669,9 @@ uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags pro
 void Engine::CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer,
                         vk::DeviceSize size)
 {
-    vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
-    vk::raii::CommandBuffer commandCopyBuffer =
-        std::move(m_device.allocateCommandBuffers(allocInfo).front());
-
-    commandCopyBuffer.begin(
-        vk::CommandBufferBeginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    vk::raii::CommandBuffer commandCopyBuffer = BeginSingleTimeCommands();
     commandCopyBuffer.copyBuffer(srcBuffer, dstBuffer, vk::BufferCopy{0, 0, size});
-    commandCopyBuffer.end();
-
-    vk::SubmitInfo submitInfo{{}, {}, *commandCopyBuffer, {}};
-    m_graphicsQueue.submit(submitInfo, {});
-    m_graphicsQueue.waitIdle();
+    EndSingleTimeCommands(commandCopyBuffer);
 }
 
 void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
