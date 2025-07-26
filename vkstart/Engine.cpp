@@ -579,10 +579,8 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
 
     const vk::AccessFlags srcAccessMask{};
     const vk::AccessFlags dstAccessMask{};
-    const uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    const uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
-                                   srcQueueFamilyIndex, dstQueueFamilyIndex, image,
+                                   VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image,
                                    subResourceRange);
 
     EndSingleTimeCommands(commandBuffer);
