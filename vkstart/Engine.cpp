@@ -581,7 +581,8 @@ void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk:
                                   tiling,
                                   usage,
                                   vk::SharingMode::eExclusive,
-                                  {}};
+                                  {},
+                                  vk::ImageLayout::eUndefined};
 
     image = vk::raii::Image{m_device, imageInfo};
 
