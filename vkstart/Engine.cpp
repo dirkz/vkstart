@@ -673,6 +673,15 @@ void Engine::CreateTextureImage()
     CreateImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
                 vk::MemoryPropertyFlagBits::eDeviceLocal, textureImageTemp, textureImageMemoryTemp);
+
+    TransitionImageLayout(textureImageTemp, vk::ImageLayout::eUndefined,
+                          vk::ImageLayout::eTransferDstOptimal);
+
+    CopyBufferToImage(stagingBuffer, textureImageTemp, static_cast<uint32_t>(texWidth),
+                      static_cast<uint32_t>(texHeight));
+
+    TransitionImageLayout(textureImageTemp, vk::ImageLayout::eTransferDstOptimal,
+                          vk::ImageLayout::eShaderReadOnlyOptimal);
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
