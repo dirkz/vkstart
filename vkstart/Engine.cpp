@@ -51,6 +51,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateGraphicsPipeline();
     CreateCommandPool();
     CreateTextureImage();
+    CreateTextureImageView();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
@@ -698,20 +699,36 @@ void Engine::CreateTextureImage()
 
     stbi_image_free(pixels);
 
-    vk::raii::Image textureImageTemp = nullptr;
-    vk::raii::DeviceMemory textureImageMemoryTemp = nullptr;
     CreateImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-                vk::MemoryPropertyFlagBits::eDeviceLocal, textureImageTemp, textureImageMemoryTemp);
+                vk::MemoryPropertyFlagBits::eDeviceLocal, m_textureImage, m_textureImageMemory);
 
-    TransitionImageLayout(textureImageTemp, vk::ImageLayout::eUndefined,
+    TransitionImageLayout(m_textureImage, vk::ImageLayout::eUndefined,
                           vk::ImageLayout::eTransferDstOptimal);
 
-    CopyBufferToImage(stagingBuffer, textureImageTemp, static_cast<uint32_t>(texWidth),
+    CopyBufferToImage(stagingBuffer, m_textureImage, static_cast<uint32_t>(texWidth),
                       static_cast<uint32_t>(texHeight));
 
-    TransitionImageLayout(textureImageTemp, vk::ImageLayout::eTransferDstOptimal,
+    TransitionImageLayout(m_textureImage, vk::ImageLayout::eTransferDstOptimal,
                           vk::ImageLayout::eShaderReadOnlyOptimal);
+}
+
+vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format)
+{
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    const vk::ImageSubresourceRange subresourceRange = {
+        vk::ImageAspectFlagBits::eColor, baseMipLevel, levelCount, baseArrayLayer, layerCount};
+    vk::ImageViewCreateInfo viewInfo({}, image, vk::ImageViewType::e2D, format, {},
+                                     subresourceRange);
+    return vk::raii::ImageView(m_device, viewInfo);
+}
+
+void Engine::CreateTextureImageView()
+{
+    m_textureImageView = CreateImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb);
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)

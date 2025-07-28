@@ -43,6 +43,9 @@ struct Engine
                      vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
     void CreateTextureImage();
 
+    vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format);
+    void CreateTextureImageView();
+
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     void CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size);
     void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
@@ -95,6 +98,7 @@ struct Engine
 
     vk::raii::Image m_textureImage = nullptr;
     vk::raii::DeviceMemory m_textureImageMemory = nullptr;
+    vk::raii::ImageView m_textureImageView = nullptr;
 
     vk::raii::Buffer m_vertexBuffer = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
