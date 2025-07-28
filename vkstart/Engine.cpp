@@ -577,21 +577,16 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
     vk::ImageSubresourceRange subResourceRange{vk::ImageAspectFlagBits::eColor, baseMipLevel,
                                                levelCount, baseArrayLayer, layerCount};
 
-    const vk::AccessFlags srcAccessMask{}; // will be set correctly later
-    const vk::AccessFlags dstAccessMask{}; // will be set correctly later
-    // TODO: Reorder this so no struct gets modified
-    vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
-                                   VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image,
-                                   subResourceRange);
-
+    vk::AccessFlags srcAccessMask{};
+    vk::AccessFlags dstAccessMask{};
     vk::PipelineStageFlags sourceStage{};
     vk::PipelineStageFlags destinationStage{};
 
     if (oldLayout == vk::ImageLayout::eUndefined &&
         newLayout == vk::ImageLayout::eTransferDstOptimal)
     {
-        barrier.srcAccessMask = {};
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+        srcAccessMask = {};
+        dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
         sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
         destinationStage = vk::PipelineStageFlagBits::eTransfer;
@@ -599,8 +594,8 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
     else if (oldLayout == vk::ImageLayout::eTransferDstOptimal &&
              newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
     {
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+        srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
         sourceStage = vk::PipelineStageFlagBits::eTransfer;
         destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
@@ -609,6 +604,10 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
     {
         throw std::invalid_argument("unsupported layout transition");
     }
+
+    vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
+                                   VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image,
+                                   subResourceRange);
 
     vk::DependencyFlags dependencyFlags{};
     commandBuffer.pipelineBarrier(sourceStage, destinationStage, dependencyFlags,
