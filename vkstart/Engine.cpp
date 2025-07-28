@@ -577,8 +577,9 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
     vk::ImageSubresourceRange subResourceRange{vk::ImageAspectFlagBits::eColor, baseMipLevel,
                                                levelCount, baseArrayLayer, layerCount};
 
-    const vk::AccessFlags srcAccessMask{}; // will be set later
-    const vk::AccessFlags dstAccessMask{}; // will be set later
+    const vk::AccessFlags srcAccessMask{}; // will be set correctly later
+    const vk::AccessFlags dstAccessMask{}; // will be set correctly later
+    // TODO: Reorder this so no struct gets modified
     vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
                                    VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image,
                                    subResourceRange);
