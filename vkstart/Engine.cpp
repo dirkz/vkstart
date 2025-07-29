@@ -232,6 +232,7 @@ void Engine::CreateDevice()
 
     // query for Vulkan 1.3 features
     vk::PhysicalDeviceFeatures2 features2 = m_physicalDevice.getFeatures2();
+    features2.features.samplerAnisotropy = vk::True;
 
     vk::PhysicalDeviceVulkan13Features vulkan13Features{};
     vulkan13Features.dynamicRendering = vk::True;
