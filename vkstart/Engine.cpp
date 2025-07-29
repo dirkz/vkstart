@@ -52,6 +52,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateCommandPool();
     CreateTextureImage();
     CreateTextureImageView();
+    CreateTextureSampler();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
@@ -711,6 +712,44 @@ void Engine::CreateTextureImage()
 
     TransitionImageLayout(m_textureImage, vk::ImageLayout::eTransferDstOptimal,
                           vk::ImageLayout::eShaderReadOnlyOptimal);
+}
+
+void Engine::CreateTextureSampler()
+{
+    vk::PhysicalDeviceProperties properties = m_physicalDevice.getProperties();
+
+    const vk::Filter magFilter{vk::Filter::eLinear};
+    const vk::Filter minFilter{vk::Filter::eLinear};
+    const vk::SamplerMipmapMode mipmapMode{vk::SamplerMipmapMode::eLinear};
+    const vk::SamplerAddressMode addressModeU{vk::SamplerAddressMode::eRepeat};
+    const vk::SamplerAddressMode addressModeV{vk::SamplerAddressMode::eRepeat};
+    const vk::SamplerAddressMode addressModeW{vk::SamplerAddressMode::eRepeat};
+    const float mipLodBias = 0.f;
+    const vk::Bool32 anisotropyEnable = vk::False;
+    const vk::Bool32 compareEnable = vk::False;
+    const vk::CompareOp compareOp = vk::CompareOp::eAlways;
+    const float minLod = 0.f;
+    const float maxLod = 0.f;
+    const vk::BorderColor borderColor = vk::BorderColor::eIntOpaqueBlack;
+    const vk::Bool32 unnormalizedCoordinates = vk::False;
+    vk::SamplerCreateInfo samplerCreateInfo{{},
+                                            magFilter,
+                                            minFilter,
+                                            mipmapMode,
+                                            addressModeU,
+                                            addressModeV,
+                                            addressModeW,
+                                            mipLodBias,
+                                            anisotropyEnable,
+                                            properties.limits.maxSamplerAnisotropy,
+                                            compareEnable,
+                                            compareOp,
+                                            minLod,
+                                            maxLod,
+                                            borderColor,
+                                            unnormalizedCoordinates};
+
+    m_textureSampler = vk::raii::Sampler{m_device, samplerCreateInfo};
 }
 
 vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format)

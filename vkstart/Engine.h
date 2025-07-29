@@ -42,6 +42,7 @@ struct Engine
                      vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
                      vk::raii::Image &image, vk::raii::DeviceMemory &imageMemory);
     void CreateTextureImage();
+    void CreateTextureSampler();
 
     vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format);
     void CreateTextureImageView();
@@ -99,6 +100,7 @@ struct Engine
     vk::raii::Image m_textureImage = nullptr;
     vk::raii::DeviceMemory m_textureImageMemory = nullptr;
     vk::raii::ImageView m_textureImageView = nullptr;
+    vk::raii::Sampler m_textureSampler = nullptr;
 
     vk::raii::Buffer m_vertexBuffer = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
