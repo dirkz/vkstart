@@ -452,8 +452,8 @@ void Engine::CreateDescriptorSetLayout()
     // but why would a vk::DescriptorSetLayoutBinding need samplers?
     uboLayoutBinding.descriptorCount = 1;
 
-    vk::DescriptorSetLayoutCreateInfo layoutInfo{{}, uboLayoutBinding};
-    m_descriptorSetLayout = vk::raii::DescriptorSetLayout{m_device, layoutInfo};
+    vk::DescriptorSetLayoutCreateInfo layoutCreateInfo{{}, uboLayoutBinding};
+    m_descriptorSetLayout = vk::raii::DescriptorSetLayout{m_device, layoutCreateInfo};
 }
 
 void Engine::CreateGraphicsPipeline()
@@ -529,8 +529,8 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
         {}, logicOpEnabled, logicOp, {colorBlendAttachment}};
 
-    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{{}, *m_descriptorSetLayout, {}};
-    m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutInfo};
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{{}, *m_descriptorSetLayout, {}};
+    m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutCreateInfo};
 
     const uint32_t viewMask = 0;
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
@@ -648,20 +648,20 @@ void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk:
 {
     const uint32_t miplevels = 1;
     const uint32_t arrayLayers = 1;
-    vk::ImageCreateInfo imageInfo{{},
-                                  vk::ImageType::e2D,
-                                  format,
-                                  {width, height, 1},
-                                  miplevels,
-                                  arrayLayers,
-                                  vk::SampleCountFlagBits::e1,
-                                  tiling,
-                                  usage,
-                                  vk::SharingMode::eExclusive,
-                                  {},
-                                  vk::ImageLayout::eUndefined};
+    vk::ImageCreateInfo imageCreateInfo{{},
+                                        vk::ImageType::e2D,
+                                        format,
+                                        {width, height, 1},
+                                        miplevels,
+                                        arrayLayers,
+                                        vk::SampleCountFlagBits::e1,
+                                        tiling,
+                                        usage,
+                                        vk::SharingMode::eExclusive,
+                                        {},
+                                        vk::ImageLayout::eUndefined};
 
-    image = vk::raii::Image{m_device, imageInfo};
+    image = vk::raii::Image{m_device, imageCreateInfo};
 
     vk::MemoryRequirements memRequirements = image.getMemoryRequirements();
     vk::MemoryAllocateInfo allocInfo{memRequirements.size,
@@ -760,9 +760,9 @@ vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format f
     const uint32_t layerCount = 1;
     const vk::ImageSubresourceRange subresourceRange = {
         vk::ImageAspectFlagBits::eColor, baseMipLevel, levelCount, baseArrayLayer, layerCount};
-    vk::ImageViewCreateInfo viewInfo({}, image, vk::ImageViewType::e2D, format, {},
-                                     subresourceRange);
-    return vk::raii::ImageView(m_device, viewInfo);
+    vk::ImageViewCreateInfo viewCreateInfo({}, image, vk::ImageViewType::e2D, format, {},
+                                           subresourceRange);
+    return vk::raii::ImageView(m_device, viewCreateInfo);
 }
 
 void Engine::CreateTextureImageView()
@@ -874,9 +874,9 @@ void Engine::CreateUniformBuffers()
 void Engine::CreateDescriptorPool()
 {
     vk::DescriptorPoolSize poolSize{vk::DescriptorType::eUniformBuffer, MaxFramesInFlight};
-    vk::DescriptorPoolCreateInfo poolInfo{
+    vk::DescriptorPoolCreateInfo poolCreateInfo{
         vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, MaxFramesInFlight, {poolSize}};
-    m_descriptorPool = vk::raii::DescriptorPool{m_device, poolInfo};
+    m_descriptorPool = vk::raii::DescriptorPool{m_device, poolCreateInfo};
 }
 
 void Engine::CreateDescriptorSets()
