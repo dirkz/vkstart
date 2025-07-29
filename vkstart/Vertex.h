@@ -9,9 +9,10 @@ struct Vertex
 {
     glm::vec2 Position;
     glm::vec3 Color;
+    glm::vec2 TextureCoordinates;
 
     static vk::VertexInputBindingDescription GetBindingDescription();
-    static std::array<vk::VertexInputAttributeDescription, 2> GetAttributeDescriptions();
+    static std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions();
 };
 
 } // namespace vkstart
