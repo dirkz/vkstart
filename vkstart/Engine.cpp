@@ -449,11 +449,17 @@ void Engine::CreateDescriptorSetLayout()
     vk::DescriptorSetLayoutBinding uboLayoutBinding{
         binding, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, {}};
 
-    // This is weird. The above constructor bases this on the number of vk::Samplers,
-    // but why would a vk::DescriptorSetLayoutBinding need samplers?
+    // This is weird. The above constructor bases this on the number of vk::Samplers.
     uboLayoutBinding.descriptorCount = 1;
 
-    vk::DescriptorSetLayoutCreateInfo layoutCreateInfo{{}, uboLayoutBinding};
+    vk::DescriptorSetLayoutBinding samplerLayoutBinding{binding + 1,
+                                                        vk::DescriptorType::eCombinedImageSampler,
+                                                        vk::ShaderStageFlagBits::eFragment,
+                                                        {}};
+    samplerLayoutBinding.descriptorCount = 1;
+
+    std::array bindings{uboLayoutBinding, samplerLayoutBinding};
+    vk::DescriptorSetLayoutCreateInfo layoutCreateInfo{{}, bindings};
     m_descriptorSetLayout = vk::raii::DescriptorSetLayout{m_device, layoutCreateInfo};
 }
 
@@ -874,9 +880,13 @@ void Engine::CreateUniformBuffers()
 
 void Engine::CreateDescriptorPool()
 {
-    vk::DescriptorPoolSize poolSize{vk::DescriptorType::eUniformBuffer, MaxFramesInFlight};
+    vk::DescriptorPoolSize uboPoolSize{vk::DescriptorType::eUniformBuffer, MaxFramesInFlight};
+    vk::DescriptorPoolSize samplerPoolSize{vk::DescriptorType::eCombinedImageSampler,
+                                           MaxFramesInFlight};
+    std::array poolSizes{uboPoolSize, samplerPoolSize};
+
     vk::DescriptorPoolCreateInfo poolCreateInfo{
-        vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, MaxFramesInFlight, {poolSize}};
+        vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, MaxFramesInFlight, poolSizes};
     m_descriptorPool = vk::raii::DescriptorPool{m_device, poolCreateInfo};
 }
 
@@ -892,17 +902,27 @@ void Engine::CreateDescriptorSets()
         vk::DescriptorBufferInfo bufferInfo{m_uniformBuffers[i], offset,
                                             sizeof(UniformBufferObject)};
 
+        vk::DescriptorImageInfo imageInfo{m_textureSampler, m_textureImageView,
+                                          vk::ImageLayout::eShaderReadOnlyOptimal};
+
         const uint32_t dstBinding = 0;
         const uint32_t dstArrayElement = 0;
-        vk::WriteDescriptorSet descriptorWrite{m_descriptorSets[i],
-                                               dstBinding,
-                                               dstArrayElement,
-                                               vk::DescriptorType::eUniformBuffer,
-                                               {},
-                                               bufferInfo,
-                                               {}};
+        vk::WriteDescriptorSet uboWriteDescriptor{m_descriptorSets[i],
+                                                  dstBinding,
+                                                  dstArrayElement,
+                                                  vk::DescriptorType::eUniformBuffer,
+                                                  {},
+                                                  bufferInfo,
+                                                  {}};
 
-        m_device.updateDescriptorSets(descriptorWrite, {});
+        vk::WriteDescriptorSet samplerWriteDescriptor{
+            m_descriptorSets[i], dstBinding + 1,
+            dstArrayElement,     vk::DescriptorType::eCombinedImageSampler,
+            imageInfo,           {}};
+
+        std::array writeDescriptors{uboWriteDescriptor, samplerWriteDescriptor};
+
+        m_device.updateDescriptorSets(writeDescriptors, {});
     }
 }
 
