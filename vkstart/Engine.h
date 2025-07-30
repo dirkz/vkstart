@@ -31,6 +31,9 @@ struct Engine
     void CreateGraphicsPipeline();
     void CreateCommandPool();
 
+    vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format,
+                                        vk::ImageAspectFlags aspectFlags) const;
+
     vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates,
                                    vk::ImageTiling tiling, vk::FormatFeatureFlags features);
     vk::Format FindDepthFormat();
@@ -50,8 +53,6 @@ struct Engine
     void CreateTextureImage();
     void CreateTextureSampler();
 
-    vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format,
-                                        vk::ImageAspectFlags aspectFlags);
     void CreateTextureImageView();
 
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);

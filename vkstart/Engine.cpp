@@ -580,6 +580,20 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format,
+                                            vk::ImageAspectFlags aspectFlags) const
+{
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    const vk::ImageSubresourceRange subresourceRange = {aspectFlags, baseMipLevel, levelCount,
+                                                        baseArrayLayer, layerCount};
+    vk::ImageViewCreateInfo viewCreateInfo({}, image, vk::ImageViewType::e2D, format, {},
+                                           subresourceRange);
+    return vk::raii::ImageView(m_device, viewCreateInfo);
+}
+
 vk::Format Engine::FindSupportedFormat(const std::vector<vk::Format> &candidates,
                                        vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
@@ -806,20 +820,6 @@ void Engine::CreateTextureSampler()
                                             unnormalizedCoordinates};
 
     m_textureSampler = vk::raii::Sampler{m_device, samplerCreateInfo};
-}
-
-vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format,
-                                            vk::ImageAspectFlags aspectFlags)
-{
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    const vk::ImageSubresourceRange subresourceRange = {aspectFlags, baseMipLevel, levelCount,
-                                                        baseArrayLayer, layerCount};
-    vk::ImageViewCreateInfo viewCreateInfo({}, image, vk::ImageViewType::e2D, format, {},
-                                           subresourceRange);
-    return vk::raii::ImageView(m_device, viewCreateInfo);
 }
 
 void Engine::CreateTextureImageView()
