@@ -55,6 +55,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateDescriptorSetLayout();
     CreateGraphicsPipeline();
     CreateCommandPool();
+    CreateDepthResources();
     CreateTextureImage();
     CreateTextureImageView();
     CreateTextureSampler();
@@ -579,6 +580,49 @@ void Engine::CreateCommandPool()
     m_commandPool = vk::raii::CommandPool{m_device, poolCreateInfo};
 }
 
+vk::Format Engine::FindSupportedFormat(const std::vector<vk::Format> &candidates,
+                                       vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+    for (const auto format : candidates)
+    {
+        vk::FormatProperties props = m_physicalDevice.getFormatProperties(format);
+
+        if (tiling == vk::ImageTiling::eLinear &&
+            (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        if (tiling == vk::ImageTiling::eOptimal &&
+            (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format");
+}
+
+vk::Format Engine::FindDepthFormat()
+{
+    return FindSupportedFormat(
+        {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+        vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+}
+
+bool Engine::HasStencilComponent(vk::Format format)
+{
+    return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+}
+
+void Engine::CreateDepthResources()
+{
+    vk::Format depthFormat = FindDepthFormat();
+    CreateImage(m_swapchainExtent.width, m_swapchainExtent.height, depthFormat,
+                vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthImageMemory);
+    m_depthImageView = CreateImageView(m_depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
+}
+
 void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
                                    vk::ImageLayout newLayout)
 {
@@ -764,14 +808,15 @@ void Engine::CreateTextureSampler()
     m_textureSampler = vk::raii::Sampler{m_device, samplerCreateInfo};
 }
 
-vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format)
+vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format,
+                                            vk::ImageAspectFlags aspectFlags)
 {
     const uint32_t baseMipLevel = 0;
     const uint32_t levelCount = 1;
     const uint32_t baseArrayLayer = 0;
     const uint32_t layerCount = 1;
-    const vk::ImageSubresourceRange subresourceRange = {
-        vk::ImageAspectFlagBits::eColor, baseMipLevel, levelCount, baseArrayLayer, layerCount};
+    const vk::ImageSubresourceRange subresourceRange = {aspectFlags, baseMipLevel, levelCount,
+                                                        baseArrayLayer, layerCount};
     vk::ImageViewCreateInfo viewCreateInfo({}, image, vk::ImageViewType::e2D, format, {},
                                            subresourceRange);
     return vk::raii::ImageView(m_device, viewCreateInfo);
@@ -779,7 +824,8 @@ vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format f
 
 void Engine::CreateTextureImageView()
 {
-    m_textureImageView = CreateImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb);
+    m_textureImageView =
+        CreateImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)

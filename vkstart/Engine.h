@@ -31,6 +31,12 @@ struct Engine
     void CreateGraphicsPipeline();
     void CreateCommandPool();
 
+    vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates,
+                                   vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+    vk::Format FindDepthFormat();
+    bool HasStencilComponent(vk::Format format);
+    void CreateDepthResources();
+
     vk::raii::CommandBuffer BeginSingleTimeCommands();
     void EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer);
 
@@ -44,7 +50,8 @@ struct Engine
     void CreateTextureImage();
     void CreateTextureSampler();
 
-    vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format);
+    vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format,
+                                        vk::ImageAspectFlags aspectFlags);
     void CreateTextureImageView();
 
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
@@ -96,6 +103,10 @@ struct Engine
     std::vector<vk::raii::DescriptorSet> m_descriptorSets;
 
     vk::raii::CommandPool m_commandPool = nullptr;
+
+    vk::raii::Image m_depthImage = nullptr;
+    vk::raii::DeviceMemory m_depthImageMemory = nullptr;
+    vk::raii::ImageView m_depthImageView = nullptr;
 
     vk::raii::Image m_textureImage = nullptr;
     vk::raii::DeviceMemory m_textureImageMemory = nullptr;
