@@ -1072,10 +1072,20 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                                                resolveImageView, resolveImageLayout, loadOp,
                                                storeOp,          clearValue};
 
+    const vk::ClearValue clearDepth = vk::ClearDepthStencilValue{1.0f, 0};
+    vk::RenderingAttachmentInfo depthAttachmentInfo{m_depthImageView,
+                                                    vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                                                    vk::ResolveModeFlagBits::eNone,
+                                                    resolveImageView,
+                                                    resolveImageLayout,
+                                                    vk::AttachmentLoadOp::eClear,
+                                                    vk::AttachmentStoreOp::eDontCare};
+
     const vk::Rect2D renderArea{{0, 0}, m_swapchainExtent};
     const uint32_t layerCount = 1;
     const uint32_t viewMask = 0;
-    vk::RenderingInfo renderingInfo = {{}, renderArea, layerCount, viewMask, {attachmentInfo}};
+    vk::RenderingInfo renderingInfo = {{},       renderArea,       layerCount,
+                                       viewMask, {attachmentInfo}, &depthAttachmentInfo};
 
     m_commandBuffers[m_currentFrame].beginRendering(renderingInfo);
 
