@@ -550,7 +550,7 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{
         viewMask, {m_swapchainImageFormat.format}, depthAttachmentFormat};
 
-    const vk::Bool32 depthTestEnable = vk::False;
+    const vk::Bool32 depthTestEnable = vk::True;
     const vk::Bool32 depthWriteEnable = vk::True;
     const vk::CompareOp depthCompareOp = vk::CompareOp::eLess;
     const vk::Bool32 depthBoundsTestEnable = vk::False;
@@ -1101,7 +1101,8 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                                                     resolveImageView,
                                                     resolveImageLayout,
                                                     vk::AttachmentLoadOp::eClear,
-                                                    vk::AttachmentStoreOp::eDontCare};
+                                                    vk::AttachmentStoreOp::eDontCare,
+                                                    clearDepth};
 
     const vk::Rect2D renderArea{{0, 0}, m_swapchainExtent};
     const uint32_t layerCount = 1;
