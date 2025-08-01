@@ -1075,7 +1075,9 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
     // Transition depth image to depth attachment optimal layout
     TransitionImageLayout(*m_depthImage, vk::ImageAspectFlagBits::eDepth,
                           vk::ImageLayout::eUndefined,
-                          vk::ImageLayout::eDepthStencilAttachmentOptimal, {}, {},
+                          vk::ImageLayout::eDepthStencilAttachmentOptimal, {},
+                          vk::AccessFlagBits2::eDepthStencilAttachmentRead |
+                              vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
                           vk::PipelineStageFlagBits2::eTopOfPipe,
                           vk::PipelineStageFlagBits2::eEarlyFragmentTests |
                               vk::PipelineStageFlagBits2::eLateFragmentTests);
