@@ -546,8 +546,8 @@ void Engine::CreateGraphicsPipeline()
     m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutCreateInfo};
 
     const uint32_t viewMask = 0;
-    vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
-                                                                {m_swapchainImageFormat.format}};
+    vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{
+        viewMask, {m_swapchainImageFormat.format}};
 
     const vk::Bool32 depthTestEnable = vk::True;
     const vk::Bool32 depthWriteEnable = vk::True;
@@ -996,6 +996,47 @@ void Engine::CreateCommandBuffer()
     m_commandBuffers = vk::raii::CommandBuffers{m_device, allocInfo};
 }
 
+void Engine::TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+                                   vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                                   vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
+                                   vk::PipelineStageFlags2 srcStageMask,
+                                   vk::PipelineStageFlags2 dstStageMask)
+{
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
+                                                  baseArrayLayer, layerCount};
+
+    vk::ImageMemoryBarrier2 barrier{srcStageMask,
+                                    srcAccessMask,
+                                    dstStageMask,
+                                    dstAccessMask,
+                                    oldLayout,
+                                    newLayout,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    image,
+                                    subresourceRange};
+
+    vk::DependencyInfo dependencyInfo = {{}, {}, {}, {barrier}};
+
+    m_commandBuffers[m_currentFrame].pipelineBarrier2(dependencyInfo);
+}
+
+void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
+                                   vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
+                                   vk::AccessFlags2 dstAccessMask,
+                                   vk::PipelineStageFlags2 srcStageMask,
+                                   vk::PipelineStageFlags2 dstStageMask)
+{
+    const auto aspectMask = vk::ImageAspectFlagBits::eColor;
+    vk::Image image = m_swapchainImages[imageIndex];
+    TransitionImageLayout(image, aspectMask, oldLayout, newLayout, srcAccessMask, dstAccessMask,
+                          srcStageMask, dstStageMask);
+}
+
 vk::raii::CommandBuffer Engine::BeginSingleTimeCommands()
 {
     vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary, 1};
@@ -1017,36 +1058,6 @@ void Engine::EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer)
     m_graphicsQueue.waitIdle();
 }
 
-void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
-                                   vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
-                                   vk::AccessFlags2 dstAccessMask,
-                                   vk::PipelineStageFlags2 srcStageMask,
-                                   vk::PipelineStageFlags2 dstStageMask)
-{
-    const auto aspectMask = vk::ImageAspectFlagBits::eColor;
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
-                                                  baseArrayLayer, layerCount};
-
-    vk::ImageMemoryBarrier2 barrier{srcStageMask,
-                                    srcAccessMask,
-                                    dstStageMask,
-                                    dstAccessMask,
-                                    oldLayout,
-                                    newLayout,
-                                    VK_QUEUE_FAMILY_IGNORED,
-                                    VK_QUEUE_FAMILY_IGNORED,
-                                    m_swapchainImages[imageIndex],
-                                    subresourceRange};
-
-    vk::DependencyInfo dependencyInfo = {{}, {}, {}, {barrier}};
-
-    m_commandBuffers[m_currentFrame].pipelineBarrier2(dependencyInfo);
-}
-
 void Engine::RecordCommandBuffer(uint32_t imageIndex)
 {
     m_commandBuffers[m_currentFrame].begin({});
@@ -1059,6 +1070,14 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                           vk::PipelineStageFlagBits2::eTopOfPipe,            // srcStage
                           vk::PipelineStageFlagBits2::eColorAttachmentOutput // dstStage
     );
+
+    // Transition depth image to depth attachment optimal layout
+    TransitionImageLayout(*m_depthImage, vk::ImageAspectFlagBits::eDepth,
+                          vk::ImageLayout::eUndefined,
+                          vk::ImageLayout::eDepthStencilAttachmentOptimal, {}, {},
+                          vk::PipelineStageFlagBits2::eTopOfPipe,
+                          vk::PipelineStageFlagBits2::eEarlyFragmentTests |
+                              vk::PipelineStageFlagBits2::eLateFragmentTests);
 
     const auto clearValue = vk::ClearColorValue{0.0f, 0.0f, 0.0f, 1.0f};
     const auto &imageView = m_swapchainImageViews[imageIndex];

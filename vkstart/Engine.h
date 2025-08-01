@@ -68,6 +68,11 @@ struct Engine
     void CreateDescriptorSets();
 
     void CreateCommandBuffer();
+    void TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+                               vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                               vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
+                               vk::PipelineStageFlags2 srcStageMask,
+                               vk::PipelineStageFlags2 dstStageMask);
     void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
                                vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
                                vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask,
