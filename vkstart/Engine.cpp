@@ -546,8 +546,9 @@ void Engine::CreateGraphicsPipeline()
     m_pipelineLayout = vk::raii::PipelineLayout{m_device, pipelineLayoutCreateInfo};
 
     const uint32_t viewMask = 0;
+    const vk::Format depthAttachmentFormat = FindDepthFormat();
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{
-        viewMask, {m_swapchainImageFormat.format}};
+        viewMask, {m_swapchainImageFormat.format}, depthAttachmentFormat};
 
     const vk::Bool32 depthTestEnable = vk::True;
     const vk::Bool32 depthWriteEnable = vk::True;
