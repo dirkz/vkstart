@@ -549,10 +549,21 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{viewMask,
                                                                 {m_swapchainImageFormat.format}};
 
+    const vk::Bool32 depthTestEnable = vk::True;
+    const vk::Bool32 depthWriteEnable = vk::True;
+    const vk::CompareOp depthCompareOp = vk::CompareOp::eLess;
+    const vk::Bool32 depthBoundsTestEnable = vk::False;
+    const vk::Bool32 stencilTestEnable = vk::False;
+    const vk::PipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo{{},
+                                                                              depthTestEnable,
+                                                                              depthWriteEnable,
+                                                                              depthCompareOp,
+                                                                              depthBoundsTestEnable,
+                                                                              stencilTestEnable};
+
     const std::array<vk::PipelineShaderStageCreateInfo, 2> stages{vertexShaderStageCreateInfo,
                                                                   fragmentShaderStageCreateInfo};
     const vk::PipelineTessellationStateCreateInfo *tesselationStateCreateInfo = nullptr;
-    const vk::PipelineDepthStencilStateCreateInfo *depthStencilStateCreateInfo = nullptr;
     vk::GraphicsPipelineCreateInfo pipelineCreateInfo{{},
                                                       stages,
                                                       &vertexInputStateCreateInfo,
@@ -561,7 +572,7 @@ void Engine::CreateGraphicsPipeline()
                                                       &viewportStateCreateInfo,
                                                       &rasterizationStateCreateInfo,
                                                       &multisampleStateCreateInfo,
-                                                      depthStencilStateCreateInfo,
+                                                      &depthStencilStateCreateInfo,
                                                       &colorBlendStateCreateInfo,
                                                       &dynamicStateCreateInfo,
                                                       m_pipelineLayout};
