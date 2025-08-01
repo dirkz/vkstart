@@ -550,7 +550,7 @@ void Engine::CreateGraphicsPipeline()
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo{
         viewMask, {m_swapchainImageFormat.format}, depthAttachmentFormat};
 
-    const vk::Bool32 depthTestEnable = vk::True;
+    const vk::Bool32 depthTestEnable = vk::False;
     const vk::Bool32 depthWriteEnable = vk::True;
     const vk::CompareOp depthCompareOp = vk::CompareOp::eLess;
     const vk::Bool32 depthBoundsTestEnable = vk::False;
