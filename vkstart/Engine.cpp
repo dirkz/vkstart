@@ -386,6 +386,7 @@ void Engine::ReCreateSwapChain()
 
     CreateSwapChain();
     CreateImageViews();
+    CreateDepthResources();
 }
 
 void Engine::CreateImageViews()
