@@ -606,47 +606,45 @@ vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format f
     return vk::raii::ImageView(m_device, viewCreateInfo);
 }
 
-vk::Format Engine::FindSupportedFormat(const std::vector<vk::Format> &candidates,
-                                       vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+void Engine::TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+                                   vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                                   vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
+                                   vk::PipelineStageFlags2 srcStageMask,
+                                   vk::PipelineStageFlags2 dstStageMask)
 {
-    for (const auto format : candidates)
-    {
-        vk::FormatProperties props = m_physicalDevice.getFormatProperties(format);
+    const uint32_t baseMipLevel = 0;
+    const uint32_t levelCount = 1;
+    const uint32_t baseArrayLayer = 0;
+    const uint32_t layerCount = 1;
+    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
+                                                  baseArrayLayer, layerCount};
 
-        if (tiling == vk::ImageTiling::eLinear &&
-            (props.linearTilingFeatures & features) == features)
-        {
-            return format;
-        }
-        if (tiling == vk::ImageTiling::eOptimal &&
-            (props.optimalTilingFeatures & features) == features)
-        {
-            return format;
-        }
-    }
+    vk::ImageMemoryBarrier2 barrier{srcStageMask,
+                                    srcAccessMask,
+                                    dstStageMask,
+                                    dstAccessMask,
+                                    oldLayout,
+                                    newLayout,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    VK_QUEUE_FAMILY_IGNORED,
+                                    image,
+                                    subresourceRange};
 
-    throw std::runtime_error("failed to find supported format");
+    vk::DependencyInfo dependencyInfo = {{}, {}, {}, {barrier}};
+
+    m_commandBuffers[m_currentFrame].pipelineBarrier2(dependencyInfo);
 }
 
-vk::Format Engine::FindDepthFormat()
+void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
+                                   vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
+                                   vk::AccessFlags2 dstAccessMask,
+                                   vk::PipelineStageFlags2 srcStageMask,
+                                   vk::PipelineStageFlags2 dstStageMask)
 {
-    return FindSupportedFormat(
-        {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
-        vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-}
-
-bool Engine::HasStencilComponent(vk::Format format)
-{
-    return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
-}
-
-void Engine::CreateDepthResources()
-{
-    vk::Format depthFormat = FindDepthFormat();
-    CreateImage(m_swapchainExtent.width, m_swapchainExtent.height, depthFormat,
-                vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-                vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthImageMemory);
-    m_depthImageView = CreateImageView(m_depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
+    const auto aspectMask = vk::ImageAspectFlagBits::eColor;
+    vk::Image image = m_swapchainImages[imageIndex];
+    TransitionImageLayout(image, aspectMask, oldLayout, newLayout, srcAccessMask, dstAccessMask,
+                          srcStageMask, dstStageMask);
 }
 
 void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
@@ -698,6 +696,49 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
                                   {} /* memoryBarriers */, {} /* bufferMemoryBarriers */, barrier);
 
     EndSingleTimeCommands(commandBuffer);
+}
+
+vk::Format Engine::FindSupportedFormat(const std::vector<vk::Format> &candidates,
+                                       vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+    for (const auto format : candidates)
+    {
+        vk::FormatProperties props = m_physicalDevice.getFormatProperties(format);
+
+        if (tiling == vk::ImageTiling::eLinear &&
+            (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        if (tiling == vk::ImageTiling::eOptimal &&
+            (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format");
+}
+
+vk::Format Engine::FindDepthFormat()
+{
+    return FindSupportedFormat(
+        {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+        vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+}
+
+bool Engine::HasStencilComponent(vk::Format format)
+{
+    return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+}
+
+void Engine::CreateDepthResources()
+{
+    vk::Format depthFormat = FindDepthFormat();
+    CreateImage(m_swapchainExtent.width, m_swapchainExtent.height, depthFormat,
+                vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                vk::MemoryPropertyFlagBits::eDeviceLocal, m_depthImage, m_depthImageMemory);
+    m_depthImageView = CreateImageView(m_depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
 }
 
 void Engine::CopyBufferToImage(const vk::raii::Buffer &buffer, vk::raii::Image &image,
@@ -995,47 +1036,6 @@ void Engine::CreateCommandBuffer()
     vk::CommandBufferAllocateInfo allocInfo{m_commandPool, vk::CommandBufferLevel::ePrimary,
                                             commandBufferCount};
     m_commandBuffers = vk::raii::CommandBuffers{m_device, allocInfo};
-}
-
-void Engine::TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
-                                   vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
-                                   vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
-                                   vk::PipelineStageFlags2 srcStageMask,
-                                   vk::PipelineStageFlags2 dstStageMask)
-{
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
-                                                  baseArrayLayer, layerCount};
-
-    vk::ImageMemoryBarrier2 barrier{srcStageMask,
-                                    srcAccessMask,
-                                    dstStageMask,
-                                    dstAccessMask,
-                                    oldLayout,
-                                    newLayout,
-                                    VK_QUEUE_FAMILY_IGNORED,
-                                    VK_QUEUE_FAMILY_IGNORED,
-                                    image,
-                                    subresourceRange};
-
-    vk::DependencyInfo dependencyInfo = {{}, {}, {}, {barrier}};
-
-    m_commandBuffers[m_currentFrame].pipelineBarrier2(dependencyInfo);
-}
-
-void Engine::TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
-                                   vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
-                                   vk::AccessFlags2 dstAccessMask,
-                                   vk::PipelineStageFlags2 srcStageMask,
-                                   vk::PipelineStageFlags2 dstStageMask)
-{
-    const auto aspectMask = vk::ImageAspectFlagBits::eColor;
-    vk::Image image = m_swapchainImages[imageIndex];
-    TransitionImageLayout(image, aspectMask, oldLayout, newLayout, srcAccessMask, dstAccessMask,
-                          srcStageMask, dstStageMask);
 }
 
 vk::raii::CommandBuffer Engine::BeginSingleTimeCommands()

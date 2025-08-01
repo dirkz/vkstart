@@ -34,6 +34,18 @@ struct Engine
     vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format,
                                         vk::ImageAspectFlags aspectFlags) const;
 
+    void TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+                               vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                               vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
+                               vk::PipelineStageFlags2 srcStageMask,
+                               vk::PipelineStageFlags2 dstStageMask);
+    void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
+                               vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
+                               vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask,
+                               vk::PipelineStageFlags2 dstStageMask);
+    void TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
+                               vk::ImageLayout newLayout);
+
     vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates,
                                    vk::ImageTiling tiling, vk::FormatFeatureFlags features);
     vk::Format FindDepthFormat();
@@ -43,8 +55,6 @@ struct Engine
     vk::raii::CommandBuffer BeginSingleTimeCommands();
     void EndSingleTimeCommands(vk::raii::CommandBuffer &commandBuffer);
 
-    void TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout oldLayout,
-                               vk::ImageLayout newLayout);
     void CopyBufferToImage(const vk::raii::Buffer &buffer, vk::raii::Image &image, uint32_t width,
                            uint32_t height);
     void CreateImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
@@ -68,15 +78,6 @@ struct Engine
     void CreateDescriptorSets();
 
     void CreateCommandBuffer();
-    void TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
-                               vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
-                               vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
-                               vk::PipelineStageFlags2 srcStageMask,
-                               vk::PipelineStageFlags2 dstStageMask);
-    void TransitionImageLayout(uint32_t imageIndex, vk::ImageLayout oldLayout,
-                               vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask,
-                               vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask,
-                               vk::PipelineStageFlags2 dstStageMask);
     void RecordCommandBuffer(uint32_t imageIndex);
     void CreateSyncObjects();
 
