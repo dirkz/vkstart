@@ -23,5 +23,6 @@ target_precompile_headers(vkstart PUBLIC stdafx.h)
 target_include_directories(vkstart PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_include_directories(vkstart PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../stb)
+target_include_directories(vkstart PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../tinyobjloader)
 
 target_link_libraries(vkstart PRIVATE SDL-Hpp Vulkan::Vulkan glm::glm)
