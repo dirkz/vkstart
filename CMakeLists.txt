@@ -33,6 +33,7 @@ add_subdirectory(SDL-Hpp)
 add_subdirectory(vkstart)
 add_subdirectory(shaders)
 add_subdirectory(textures)
+add_subdirectory(models)
 
 add_dependencies(${PROJECT_NAME} shaders)
 
