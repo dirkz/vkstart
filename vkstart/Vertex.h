@@ -27,6 +27,7 @@ struct Vertex
 
 namespace std
 {
+
 template <> struct hash<vkstart::Vertex>
 {
     size_t operator()(vkstart::Vertex const &vertex) const
@@ -36,4 +37,5 @@ template <> struct hash<vkstart::Vertex>
                (hash<glm::vec2>()(vertex.TextureCoordinates) << 1);
     }
 };
+
 } // namespace std
