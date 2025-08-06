@@ -887,6 +887,8 @@ void Engine::LoadModel()
         throw std::runtime_error(warn + err);
     }
 
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
     for (const auto &shape : shapes)
     {
         for (const auto &index : shape.mesh.indices)
@@ -902,8 +904,12 @@ void Engine::LoadModel()
 
             Vertex vertex{position, color, textureCoordinates};
 
-            m_vertices.push_back(vertex);
-            m_indices.push_back(static_cast<uint32_t>(m_indices.size()));
+            if (uniqueVertices.count(vertex) == 0)
+            {
+                uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
+                m_vertices.push_back(vertex);
+            }
+            m_indices.push_back(uniqueVertices[vertex]);
         }
     }
 }
