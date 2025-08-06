@@ -18,6 +18,12 @@ struct Engine
     void WaitIdle();
 
   private:
+    static vk::ImageSubresourceRange ImageSubresourceRange(vk::ImageAspectFlags imageAspectFlags,
+                                                           uint32_t baseMipLevel = 0,
+                                                           uint32_t levelCount = 1,
+                                                           uint32_t baseArrayLayer = 0,
+                                                           uint32_t layerCount = 1);
+
     void CreateInstance();
     void SetupDebugMessenger();
     void PickPhysicalDevice();
@@ -32,9 +38,9 @@ struct Engine
     void CreateCommandPool();
 
     vk::raii::ImageView CreateImageView(vk::raii::Image &image, vk::Format format,
-                                        vk::ImageAspectFlags aspectFlags) const;
+                                        vk::ImageAspectFlags imageAspectFlags) const;
 
-    void TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+    void TransitionImageLayout(vk::Image image, vk::ImageAspectFlags imageAspectFlags,
                                vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
                                vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
                                vk::PipelineStageFlags2 srcStageMask,

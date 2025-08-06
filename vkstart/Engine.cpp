@@ -139,6 +139,16 @@ void Engine::WaitIdle()
     m_device.waitIdle();
 }
 
+vk::ImageSubresourceRange Engine::ImageSubresourceRange(vk::ImageAspectFlags imageAspectFlags,
+                                                        uint32_t baseMipLevel, uint32_t levelCount,
+                                                        uint32_t baseArrayLayer,
+                                                        uint32_t layerCount)
+{
+    const vk::ImageSubresourceRange subresourceRange = {imageAspectFlags, baseMipLevel, levelCount,
+                                                        baseArrayLayer, layerCount};
+    return subresourceRange;
+}
+
 void Engine::CreateInstance()
 {
     std::vector<std::string> windowInstanceExtensionStrings =
@@ -396,13 +406,8 @@ void Engine::CreateImageViews()
 {
     m_swapchainImageViews.clear();
 
-    const vk::ImageAspectFlags imageAspectFlags = vk::ImageAspectFlagBits::eColor;
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    const vk::ImageSubresourceRange subresourceRange = {imageAspectFlags, baseMipLevel, levelCount,
-                                                        baseArrayLayer, layerCount};
+    const vk::ImageSubresourceRange subresourceRange =
+        Engine::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor);
 
     const auto viewType = vk::ImageViewType::e2D;
     const vk::ComponentMapping componentMapping = {
@@ -597,31 +602,25 @@ void Engine::CreateCommandPool()
 }
 
 vk::raii::ImageView Engine::CreateImageView(vk::raii::Image &image, vk::Format format,
-                                            vk::ImageAspectFlags aspectFlags) const
+                                            vk::ImageAspectFlags imageAspectFlags) const
 {
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    const vk::ImageSubresourceRange subresourceRange = {aspectFlags, baseMipLevel, levelCount,
-                                                        baseArrayLayer, layerCount};
+    const vk::ImageSubresourceRange subresourceRange =
+        Engine::ImageSubresourceRange(imageAspectFlags);
+
     vk::ImageViewCreateInfo viewCreateInfo({}, image, vk::ImageViewType::e2D, format, {},
                                            subresourceRange);
+
     return vk::raii::ImageView(m_device, viewCreateInfo);
 }
 
-void Engine::TransitionImageLayout(vk::Image image, vk::ImageAspectFlags aspectMask,
+void Engine::TransitionImageLayout(vk::Image image, vk::ImageAspectFlags imageAspectFlags,
                                    vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
                                    vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask,
                                    vk::PipelineStageFlags2 srcStageMask,
                                    vk::PipelineStageFlags2 dstStageMask)
 {
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    vk::ImageSubresourceRange subresourceRange = {aspectMask, baseMipLevel, levelCount,
-                                                  baseArrayLayer, layerCount};
+    const vk::ImageSubresourceRange subresourceRange =
+        Engine::ImageSubresourceRange(imageAspectFlags);
 
     vk::ImageMemoryBarrier2 barrier{srcStageMask,
                                     srcAccessMask,
@@ -656,12 +655,8 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
 {
     vk::raii::CommandBuffer commandBuffer = BeginSingleTimeCommands();
 
-    const uint32_t baseMipLevel = 0;
-    const uint32_t levelCount = 1;
-    const uint32_t baseArrayLayer = 0;
-    const uint32_t layerCount = 1;
-    vk::ImageSubresourceRange subResourceRange{vk::ImageAspectFlagBits::eColor, baseMipLevel,
-                                               levelCount, baseArrayLayer, layerCount};
+    const vk::ImageSubresourceRange subresourceRange =
+        Engine::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor);
 
     vk::AccessFlags srcAccessMask{};
     vk::AccessFlags dstAccessMask{};
@@ -693,7 +688,7 @@ void Engine::TransitionImageLayout(const vk::raii::Image &image, vk::ImageLayout
 
     vk::ImageMemoryBarrier barrier(srcAccessMask, dstAccessMask, oldLayout, newLayout,
                                    VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image,
-                                   subResourceRange);
+                                   subresourceRange);
 
     vk::DependencyFlags dependencyFlags{};
     commandBuffer.pipelineBarrier(sourceStage, destinationStage, dependencyFlags,
