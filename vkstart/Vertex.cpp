@@ -3,6 +3,11 @@
 namespace vkstart
 {
 
+Vertex::Vertex(glm::vec3 &position, glm::vec3 &color, glm::vec2 &textureCoordinates)
+    : Position{position}, Color{color}, TextureCoordinates{textureCoordinates}
+{
+}
+
 vk::VertexInputBindingDescription Vertex::GetBindingDescription()
 {
     return {0, sizeof(Vertex), vk::VertexInputRate::eVertex};

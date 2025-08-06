@@ -886,6 +886,26 @@ void Engine::LoadModel()
     {
         throw std::runtime_error(warn + err);
     }
+
+    for (const auto &shape : shapes)
+    {
+        for (const auto &index : shape.mesh.indices)
+        {
+            glm::vec3 position{attrib.vertices[3 * index.vertex_index + 0],
+                               attrib.vertices[3 * index.vertex_index + 1],
+                               attrib.vertices[3 * index.vertex_index + 2]};
+
+            glm::vec2 textureCoordinates{attrib.texcoords[2 * index.texcoord_index + 0],
+                                         attrib.texcoords[2 * index.texcoord_index + 1]};
+
+            glm::vec3 color{1.0f, 1.0f, 1.0f};
+
+            Vertex vertex{position, color, textureCoordinates};
+
+            m_vertices.push_back(vertex);
+            m_indices.push_back(static_cast<uint32_t>(m_indices.size()));
+        }
+    }
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
