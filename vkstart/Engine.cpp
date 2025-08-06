@@ -11,6 +11,9 @@
 namespace vkstart
 {
 
+const std::string ModelFilename = "viking_room.obj";
+const std::string TextureFilename = "viking_room.png";
+
 struct UniformBufferObject
 {
     glm::mat4 model;
@@ -783,7 +786,7 @@ void Engine::CreateImage(uint32_t width, uint32_t height, vk::Format format, vk:
 void Engine::CreateTextureImage()
 {
     std::filesystem::path basePath{sdl::GetBasePath()};
-    std::filesystem::path filePath = basePath / "textures" / "texture.jpg";
+    std::filesystem::path filePath = basePath / "models" / TextureFilename;
     std::string filePathString = filePath.string();
 
     int texWidth, texHeight, texChannels;
