@@ -39,4 +39,4 @@ add_dependencies(${PROJECT_NAME} shaders)
 
 target_precompile_headers(${PROJECT_NAME} REUSE_FROM vkstart)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE vkstart SDL-Hpp Vulkan::Vulkan)
+target_link_libraries(${PROJECT_NAME} PRIVATE vkstart SDL-Hpp Vulkan::Vulkan glm::glm)
