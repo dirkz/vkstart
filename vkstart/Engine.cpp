@@ -1,7 +1,6 @@
 #include "Engine.h"
 
 #include "ValidationLayers.h"
-#include "Vertex.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -18,18 +17,6 @@ struct UniformBufferObject
     glm::mat4 view;
     glm::mat4 proj;
 };
-
-const std::vector<Vertex> Vertices = {{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                                      {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                                      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                                      {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-                                      {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                                      {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                                      {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                                      {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
-
-const std::vector<uint16_t> Indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
 
 constexpr uint32_t MaxFramesInFlight = 2;
 
@@ -62,6 +49,7 @@ Engine::Engine(PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr, IWindow *window)
     CreateTextureImage();
     CreateTextureImageView();
     CreateTextureSampler();
+    LoadModel();
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
@@ -880,6 +868,10 @@ void Engine::CreateTextureImageView()
         CreateImageView(m_textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 }
 
+void Engine::LoadModel()
+{
+}
+
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
     vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
@@ -918,7 +910,7 @@ void Engine::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
 
 void Engine::CreateVertexBuffer()
 {
-    vk::DeviceSize bufferSize = sizeof(Vertices[0]) * Vertices.size();
+    vk::DeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
 
     vk::raii::Buffer stagingBuffer = nullptr;
     vk::raii::DeviceMemory stagingBufferMemory = nullptr;
@@ -928,7 +920,7 @@ void Engine::CreateVertexBuffer()
                  stagingBuffer, stagingBufferMemory);
 
     void *dataStaging = stagingBufferMemory.mapMemory(0, bufferSize);
-    memcpy(dataStaging, Vertices.data(), bufferSize);
+    memcpy(dataStaging, m_vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
 
     CreateBuffer(bufferSize,
@@ -940,7 +932,7 @@ void Engine::CreateVertexBuffer()
 
 void Engine::CreateIndexBuffer()
 {
-    vk::DeviceSize bufferSize = sizeof(Indices[0]) * Indices.size();
+    vk::DeviceSize bufferSize = sizeof(m_indices[0]) * m_indices.size();
 
     vk::raii::Buffer stagingBuffer = nullptr;
     vk::raii::DeviceMemory stagingBufferMemory = nullptr;
@@ -950,7 +942,7 @@ void Engine::CreateIndexBuffer()
                  stagingBuffer, stagingBufferMemory);
 
     void *data = stagingBufferMemory.mapMemory(0, bufferSize);
-    memcpy(data, Indices.data(), bufferSize);
+    memcpy(data, m_indices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
 
     CreateBuffer(bufferSize,
@@ -1115,7 +1107,7 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                                                   m_graphicsPipeline);
 
     m_commandBuffers[m_currentFrame].bindVertexBuffers(0, {m_vertexBuffer}, {0});
-    m_commandBuffers[m_currentFrame].bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint16);
+    m_commandBuffers[m_currentFrame].bindIndexBuffer(m_indexBuffer, 0, vk::IndexType::eUint32);
 
     m_commandBuffers[m_currentFrame].setViewport(
         0, vk::Viewport{0.0f, 0.0f, static_cast<float>(m_swapchainExtent.width),
@@ -1127,7 +1119,7 @@ void Engine::RecordCommandBuffer(uint32_t imageIndex)
                                                         m_pipelineLayout, 0,
                                                         {m_descriptorSets[m_currentFrame]}, {});
 
-    const uint32_t indexCount = static_cast<uint32_t>(Indices.size());
+    const uint32_t indexCount = static_cast<uint32_t>(m_indices.size());
     const uint32_t instanceCount = 1;
     const uint32_t firstIndex = 0;
     const uint32_t vertexOffset = 0;

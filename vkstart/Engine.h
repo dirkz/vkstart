@@ -5,6 +5,7 @@
 #include "DebugMessenger.h"
 #include "IWindow.h"
 #include "QueueFamilyIndices.h"
+#include "Vertex.h"
 
 namespace vkstart
 {
@@ -71,6 +72,8 @@ struct Engine
 
     void CreateTextureImageView();
 
+    void LoadModel();
+
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     void CopyBuffer(vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size);
     void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage,
@@ -125,6 +128,9 @@ struct Engine
     vk::raii::DeviceMemory m_textureImageMemory = nullptr;
     vk::raii::ImageView m_textureImageView = nullptr;
     vk::raii::Sampler m_textureSampler = nullptr;
+
+    std::vector<Vertex> m_vertices;
+    std::vector<uint32_t> m_indices;
 
     vk::raii::Buffer m_vertexBuffer = nullptr;
     vk::raii::DeviceMemory m_vertexBufferMemory = nullptr;
