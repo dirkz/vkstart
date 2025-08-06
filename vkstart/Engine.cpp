@@ -873,6 +873,19 @@ void Engine::CreateTextureImageView()
 
 void Engine::LoadModel()
 {
+    std::filesystem::path basePath{sdl::GetBasePath()};
+    std::filesystem::path filePath = basePath / "models" / ModelFilename;
+    std::string filePathString = filePath.string();
+
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filePathString.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
 }
 
 uint32_t Engine::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
